@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>मात्रा मित्र — Hindi matra practice</title>
+<style>
+@font-face{font-family:"Baloo 2";src:url("fonts/Baloo2.ttf") format("truetype");font-weight:400 800;font-display:swap;}
+@font-face{font-family:"Tiro Devanagari Hindi";src:url("fonts/TiroDevanagariHindi-Regular.ttf") format("truetype");font-display:swap;}
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --paper:#F5F8FE; --rule:#DFE7F5; --ink:#1B2456; --ink-2:#56608C; --card:#FFFFFF; --line:#D3DCEF;
+  --accent:#F2A900; --accent-ink:#1B2456; --tab-on:#E8EEFB; --ghost:#C9D5EE; --guide:#E3A0A0;
+  --good:#17785A; --good-bg:#DDF3EA; --bad:#B8362A; --bad-bg:#FBE1DC;
+  --Lfg:40%; --Lbg:93%; --Sadj:12%; --Lstep:11%;
+  --deva:'Tiro Devanagari Hindi','Noto Serif Devanagari','Nirmala UI','Mangal',serif;
+  --ui:'Baloo 2','Noto Sans Devanagari','Nirmala UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#10142C; --rule:#181E3D; --ink:#E9ECFA; --ink-2:#A3AAD0; --card:#192044; --line:#2B3462;
+    --accent:#F5B82E; --accent-ink:#10142C; --tab-on:#232B57; --ghost:#2F3A6E; --guide:#6B3346;
+    --good:#55CF97; --good-bg:#153A30; --bad:#FF8574; --bad-bg:#43201E;
+    --Lfg:76%; --Lbg:22%; --Sadj:-36%; --Lstep:-9%;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10142C; --rule:#181E3D; --ink:#E9ECFA; --ink-2:#A3AAD0; --card:#192044; --line:#2B3462;
+  --accent:#F5B82E; --accent-ink:#10142C; --tab-on:#232B57; --ghost:#2F3A6E; --guide:#6B3346;
+  --good:#55CF97; --good-bg:#153A30; --bad:#FF8574; --bad-bg:#43201E;
+  --Lfg:76%; --Lbg:22%; --Sadj:-36%; --Lstep:-9%;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%;}
+*,*::before,*::after{box-sizing:inherit;}
+body{
+  margin:0; color:var(--ink); font-family:var(--ui); font-size:16px; line-height:1.5;
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(to bottom, transparent 0 35px, var(--rule) 35px 36px);
+}
+button{font:inherit;color:inherit;}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+[hidden]{display:none !important;}
+.deva{font-family:var(--deva);}
+
+/* matra colour system: each matra has a hue; long twins are a step deeper */
+.mx{color:hsl(var(--h) var(--s,68%) calc(var(--Lfg) - var(--d,0) * var(--Lstep)));}
+.mxbg{background:hsl(var(--h) calc(var(--s,68%) + var(--Sadj)) calc(var(--Lbg) - var(--d,0) * 5%));}
+
+/* the shirorekha: headings hang from a line the way Devanagari does */
+.shiro{display:flex;align-items:flex-start;margin:0;font-weight:800;line-height:1.15;}
+.shiro>span{flex:0 1 auto;min-width:0;}
+.shiro::after{content:"";flex:1 1 0;min-width:28px;height:.12em;background:currentColor;margin-top:var(--shiro-top,.25em);margin-left:-.03em;border-radius:0 3px 3px 0;}
+h2.shiro{font-size:32px;margin:34px 0 2px;}
+h3.shiro{font-size:24px;margin:26px 0 4px;}
+.sub{margin:0 0 14px;color:var(--ink-2);font-size:15px;max-width:62ch;}
+
+/* header */
+.top{max-width:980px;margin:0 auto;padding:16px 18px 6px;display:flex;align-items:flex-start;gap:12px;}
+.brand{flex:1;min-width:0;}
+.brand h1{font-size:40px;}
+.brand p{margin:0;color:var(--ink-2);font-size:15px;}
+.icon-btn{flex:none;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);cursor:pointer;font-size:20px;display:grid;place-items:center;margin-top:4px;}
+.voice-warn{max-width:980px;margin:6px auto 0;padding:0 18px;}
+.voice-warn div{background:var(--bad-bg);color:var(--bad);border-radius:14px;padding:10px 14px;font-size:14.5px;display:flex;gap:10px;align-items:flex-start;}
+#voiceWarnClose{margin-left:auto;background:none;border:0;cursor:pointer;font-weight:700;color:inherit;}
+#warnVoiceSettings~#voiceWarnClose{margin-left:0;}
+
+/* nav */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));}
+.tab{flex:1;background:none;border:0;display:flex;flex-direction:column;align-items:center;color:var(--ink-2);padding:4px 2px 2px;border-radius:14px;cursor:pointer;min-width:0;}
+.tab .ti{font-family:var(--deva);font-size:23px;line-height:1;height:28px;display:flex;align-items:center;}
+.tab .tl{font-size:13px;font-weight:700;line-height:1.3;white-space:nowrap;}
+.tab[aria-selected="true"]{color:var(--ink);background:var(--tab-on);}
+main{max-width:980px;margin:0 auto;padding:0 18px 130px;}
+@media (min-width:760px){
+  .tabs{position:sticky;top:env(safe-area-inset-top,0px);bottom:auto;max-width:944px;margin:10px auto 0;border:1px solid var(--line);border-radius:20px;padding:6px;}
+  .tab{flex-direction:row;justify-content:center;gap:8px;padding:8px 6px;}
+  .tab .tl{font-size:15px;}
+  main{padding-bottom:60px;}
+}
+
+/* shared pieces */
+.panel{background:var(--card);border:1.5px solid var(--line);border-radius:22px;padding:18px;}
+.btn{border-radius:999px;padding:9px 18px;border:2px solid var(--ink);background:var(--card);font-weight:700;cursor:pointer;font-size:15.5px;line-height:1.3;}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.btn.ghost{border-color:var(--line);}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.tile{position:relative;background-color:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:8px 4px 8px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-width:0;transition:transform .12s, border-color .12s;}
+.tile:hover{border-color:var(--ink-2);}
+.tile .g{font-family:var(--deva);font-size:36px;line-height:1.35;}
+.tile .w{font-family:var(--deva);font-size:15px;line-height:1.3;min-height:1.3em;}
+.tile .r{font-size:12.5px;color:var(--ink-2);line-height:1.3;min-height:1.3em;overflow-wrap:anywhere;}
+.tile.mxbg{background:hsl(var(--h) calc(var(--s,68%) + var(--Sadj)) calc(var(--Lbg) - var(--d,0) * 5%));}
+.tile.playing{border-color:var(--ink);transform:translateY(-2px);}
+.tile.novoice{border-color:var(--bad);}
+.tile.current{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent);}
+.grid-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;}
+.group-label{display:flex;gap:8px;align-items:baseline;margin:16px 0 6px;}
+.group-label b{font-size:18px;}
+.group-label span{color:var(--ink-2);font-size:14px;}
+.sign-corner{position:absolute;top:4px;right:7px;font-family:var(--deva);font-size:17px;line-height:1;opacity:.85;}
+body.no-roman .r, body.no-roman .rom-only{display:none;}
+.note{background:var(--tab-on);border-radius:18px;padding:14px 16px;font-size:15px;margin-top:28px;max-width:70ch;}
+.note b{font-weight:800;}
+
+/* matras tab */
+.where{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+@media (max-width:560px){.where{grid-template-columns:repeat(2,1fr);}}
+.where>div{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:10px 12px;}
+.where b{display:block;font-size:15px;}
+.where .ex{font-family:var(--deva);font-size:26px;line-height:1.4;}
+.where .ex span{margin-right:6px;}
+.matra-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;}
+.mcard{text-align:left;border:0;border-radius:18px;padding:12px 14px 12px;cursor:pointer;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto auto;row-gap:0;}
+.mcard .sg{font-family:var(--deva);font-size:44px;line-height:1.2;grid-row:1/3;}
+.mcard .vw{font-family:var(--deva);font-size:22px;justify-self:end;line-height:1.2;}
+.mcard .ex{font-family:var(--deva);font-size:22px;justify-self:end;line-height:1.3;opacity:.9;}
+.mcard .nm{grid-column:1/3;font-weight:700;font-size:15px;line-height:1.3;margin-top:4px;}
+.mcard .ps{grid-column:1/3;font-size:13px;opacity:.8;}
+.mcard .meter{grid-column:1/3;height:5px;border-radius:3px;background:hsl(var(--h) 30% 50% / .18);margin-top:8px;overflow:hidden;}
+.mcard .meter i{display:block;height:100%;background:currentColor;}
+.pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.pair{display:flex;border-radius:18px;overflow:hidden;border:1.5px solid var(--line);}
+.pair button{flex:1;border:0;padding:10px 6px;cursor:pointer;text-align:center;}
+.pair .g{font-family:var(--deva);font-size:40px;line-height:1.3;display:block;}
+.pair small{font-size:13px;font-weight:600;}
+
+/* dialog */
+dialog{border:0;border-radius:24px;padding:0;background:var(--card);color:var(--ink);width:min(580px,calc(100% - 20px));max-height:calc(100% - 40px);}
+dialog::backdrop{background:rgba(10,14,40,.55);}
+.dlg-head{display:flex;align-items:flex-start;gap:10px;padding:18px 18px 0;}
+.dlg-head .shiro{flex:1;font-size:28px;}
+.dlg-body{padding:6px 18px 20px;}
+.equation{display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--deva);font-size:clamp(38px,11vw,52px);line-height:1.3;border-radius:18px;padding:8px;margin:10px 0;flex-wrap:wrap;}
+.equation button{background:none;border:0;cursor:pointer;font:inherit;color:inherit;padding:0 4px;border-radius:10px;}
+.equation .op{font-family:var(--ui);font-size:26px;opacity:.6;}
+.facts{display:grid;gap:4px;font-size:15.5px;margin-bottom:6px;}
+.facts b{font-weight:700;}
+.word-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:8px;}
+.word-grid .tile .g{font-size:27px;}
+.hl{border-radius:6px;padding:0 2px;}
+
+/* barakhadi */
+.chips{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;}
+.chip{flex:none;scroll-snap-align:start;min-width:48px;height:48px;padding:0 10px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;font-family:var(--deva);font-size:24px;line-height:1;}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.chip.txt{font-family:var(--ui);font-size:15px;font-weight:700;}
+.bk-head{display:flex;align-items:center;gap:14px;margin:6px 0 12px;flex-wrap:wrap;}
+.bk-letter{font-family:var(--deva);font-size:64px;line-height:1.1;}
+.bk-meta{flex:1;min-width:160px;}
+.bk-meta .r{color:var(--ink-2);}
+.bk-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+@media (max-width:640px){.bk-grid{grid-template-columns:repeat(3,1fr);}}
+.bk-grid .tile .g{font-size:44px;}
+.special{font-size:14.5px;color:var(--ink-2);margin:10px 0 0;}
+.story{font-family:var(--deva);font-size:21px;line-height:2;margin:4px 0 8px;max-width:46em;}
+.story-en{margin:0;color:var(--ink-2);font-size:15px;}
+.story mark{background:none;cursor:pointer;border-radius:6px;padding:0 2px;color:hsl(var(--h) var(--s,68%) calc(var(--Lfg) - var(--d,0) * var(--Lstep)));background:hsl(var(--h) calc(var(--s,68%) + var(--Sadj)) calc(var(--Lbg) - var(--d,0) * 5%));}
+.m-base{--h:230;--s:25%;--d:0}.m-aa{--h:42;--d:0}.m-i{--h:2;--d:0}.m-ee{--h:2;--d:1}.m-u{--h:170;--d:0}.m-oo{--h:170;--d:1}
+
+/* write */
+.write-wrap{display:grid;grid-template-columns:minmax(0,420px) 1fr;gap:18px;align-items:start;}
+@media (max-width:760px){.write-wrap{grid-template-columns:1fr;}}
+.pad-box{background:var(--card);border:1.5px solid var(--line);border-radius:22px;padding:10px;}
+#pad{display:block;touch-action:none;border-radius:14px;cursor:crosshair;margin:0 auto;}
+.stars{font-size:34px;letter-spacing:4px;min-height:48px;line-height:1.4;}
+.stars{color:var(--accent);}
+.stars .off{opacity:.25;color:var(--ink-2);}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;padding:3px;background:var(--card);flex-wrap:wrap;}
+.seg button{border:0;background:none;border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:700;font-size:15px;color:var(--ink-2);}
+#modeSeg{display:flex;border-radius:18px;}
+#modeSeg button{flex:1 1 auto;border-radius:14px;}
+.seg button[aria-checked="true"]{background:var(--ink);color:var(--paper);}
+
+/* quiz */
+.fchips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 14px;}
+.fchip{border:2px solid transparent;border-radius:999px;min-width:48px;height:44px;padding:0 12px;cursor:pointer;font-family:var(--deva);font-size:22px;line-height:1;opacity:.45;}
+.fchip[aria-pressed="true"]{opacity:1;border-color:currentColor;}
+.q-top{display:flex;justify-content:space-between;align-items:center;font-size:15px;color:var(--ink-2);font-weight:600;}
+.q-bar{height:8px;border-radius:4px;background:var(--tab-on);margin:8px 0 14px;overflow:hidden;}
+.q-bar i{display:block;height:100%;background:var(--accent);transition:width .3s;}
+.q-prompt{text-align:center;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.q-big{font-family:var(--deva);font-size:84px;line-height:1.25;background:none;border:0;cursor:pointer;padding:0 16px;border-radius:18px;}
+.q-hint{color:var(--ink-2);font-size:15.5px;}
+.q-listen{width:110px;height:110px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);font-size:44px;cursor:pointer;}
+.q-word{font-family:var(--deva);font-size:56px;line-height:1.3;}
+.q-word .blank{display:inline-block;min-width:1.1em;border-bottom:4px solid var(--accent);margin:0 2px;text-align:center;}
+.q-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.opt{border:2px solid var(--line);background:var(--paper);border-radius:16px;padding:10px 6px;cursor:pointer;font-size:20px;font-weight:700;min-height:64px;}
+.opt.deva{font-size:38px;font-weight:400;line-height:1.2;}
+.opt:hover:not(:disabled){border-color:var(--ink-2);}
+.opt.correct{background:var(--good-bg);border-color:var(--good);color:var(--good);}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad);color:var(--bad);}
+.opt:disabled{cursor:default;}
+.q-feedback{min-height:28px;text-align:center;font-weight:700;margin-top:12px;font-size:16.5px;}
+.q-feedback.good{color:var(--good);} .q-feedback.bad{color:var(--bad);}
+.q-actions{display:flex;justify-content:space-between;gap:10px;margin-top:10px;}
+.end-score{font-size:56px;font-weight:800;line-height:1.1;}
+.prog-list{display:grid;gap:6px;}
+.prog-row{display:grid;grid-template-columns:64px 1fr 60px;align-items:center;gap:10px;font-size:14.5px;}
+.prog-row .sg{font-family:var(--deva);font-size:24px;line-height:1.2;border-radius:10px;text-align:center;}
+.prog-row .bar{height:10px;border-radius:5px;background:var(--tab-on);overflow:hidden;}
+.prog-row .bar i{display:block;height:100%;}
+.prog-row .pct{text-align:right;color:var(--ink-2);}
+.empty{color:var(--ink-2);font-size:15px;}
+
+.set-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);}
+.set-row:first-child{border-top:0;}
+.set-row p{margin:0;font-size:14px;color:var(--ink-2);}
+
+@media (prefers-reduced-motion:reduce){*{transition:none !important;}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <h1 class="shiro deva-ui">मात्रा मित्र</h1>
+    <p>Every Hindi matra, with sounds, words, writing and games.</p>
+  </div>
+  <button class="icon-btn" id="settingsBtn" aria-label="Settings">⚙</button>
+</header>
+<div class="voice-warn" id="voiceWarn" hidden>
+  <div><span id="voiceWarnText"></span><button class="btn ghost native-only" id="warnVoiceSettings" style="padding:2px 12px;margin-left:auto;flex:none" hidden>Voice settings</button><button id="voiceWarnClose" aria-label="Dismiss">✕</button></div>
+</div>
+
+<nav class="tabs" role="tablist" aria-label="Sections">
+  <button class="tab" role="tab" data-tab="varnmala"><span class="ti">अ</span><span class="tl">वर्णमाला</span></button>
+  <button class="tab" role="tab" data-tab="matras"><span class="ti">◌ा</span><span class="tl">मात्राएँ</span></button>
+  <button class="tab" role="tab" data-tab="barakhadi"><span class="ti">कि</span><span class="tl">बारहखड़ी</span></button>
+  <button class="tab" role="tab" data-tab="write"><span class="ti">✎</span><span class="tl">लिखो</span></button>
+  <button class="tab" role="tab" data-tab="quiz"><span class="ti">★</span><span class="tl">खेलो</span></button>
+</nav>
+
+<main>
+  <!-- VARNMALA -->
+  <section class="panel-tab" id="tab-varnmala" role="tabpanel">
+    <h2 class="shiro">स्वर</h2>
+    <p class="sub">Vowels. Tap one to hear it. The small mark in the corner is the matra that vowel turns into when it joins a consonant.</p>
+    <div class="grid-tiles" id="vowelGrid"></div>
+
+    <h2 class="shiro">व्यंजन</h2>
+    <p class="sub">Consonants, grouped the way Hindi textbooks group them. Tap to hear the letter and a word that starts with it.</p>
+    <div id="consGroups"></div>
+  </section>
+
+  <!-- MATRAS -->
+  <section class="panel-tab" id="tab-matras" role="tabpanel" hidden>
+    <h2 class="shiro">मात्राएँ</h2>
+    <p class="sub">When a vowel joins a consonant it shrinks into a small sign called a matra. Tap any matra to see where it goes, hear it, and find words that use it.</p>
+    <div class="where" id="whereGrid"></div>
+
+    <h3 class="shiro">सारी मात्राएँ</h3>
+    <p class="sub">The coloured bar fills up as you get that matra right in the games.</p>
+    <div class="matra-grid" id="matraGrid"></div>
+
+    <h3 class="shiro">छोटी–बड़ी जोड़ियाँ</h3>
+    <p class="sub">These twins are the ones children mix up most. Tap each side and listen for the difference.</p>
+    <div class="pairs" id="pairGrid"></div>
+
+    <div class="note"><b>For the grown-up:</b> Don't march through every letter in order. Start with the letters in the child's name and favourite words, add one new matra every few days, and keep circling back to whichever twin (कि/की, कु/कू, के/कै, को/कौ) trips them up. Ten focused minutes beats an hour of pressure.</div>
+  </section>
+
+  <!-- BARAKHADI -->
+  <section class="panel-tab" id="tab-barakhadi" role="tabpanel" hidden>
+    <h2 class="shiro">बारहखड़ी</h2>
+    <p class="sub">Pick a letter to see it with every matra. Tap a form to hear it, or play the whole row.</p>
+    <div class="chips" id="consChips" role="group" aria-label="Choose a letter"></div>
+    <div class="bk-head">
+      <div class="bk-letter" id="bkLetter">क</div>
+      <div class="bk-meta"><div id="bkWord" class="deva" style="font-size:20px"></div><div class="r" id="bkRoman"></div></div>
+      <div class="row">
+        <button class="btn primary" id="playAll">▶ पूरी बारहखड़ी सुनो</button>
+        <button class="btn ghost" id="bkWrite">✎ लिखो</button>
+      </div>
+    </div>
+    <div class="bk-grid" id="bkGrid"></div>
+    <p class="special" id="bkSpecial"></p>
+
+    <div id="storyBox" hidden>
+      <h3 class="shiro" id="storyTitle">कहानी</h3>
+      <p class="sub">A short story using this letter's words. Tap a coloured word to hear it.</p>
+      <div class="panel"><p class="story" id="storyHi"></p><p class="story-en" id="storyEn"></p></div>
+    </div>
+  </section>
+
+  <!-- WRITE -->
+  <section class="panel-tab" id="tab-write" role="tabpanel" hidden>
+    <h2 class="shiro">लिखो</h2>
+    <p class="sub">Trace the faint letter with your finger or mouse, then tap Check. Turn the guide off when you're ready to write it on your own.</p>
+    <div class="row" style="margin-bottom:8px">
+      <div class="seg" role="radiogroup" id="writeSet">
+        <button role="radio" data-set="vowels">स्वर</button>
+        <button role="radio" data-set="cons">व्यंजन</button>
+        <button role="radio" data-set="bk">बारहखड़ी</button>
+      </div>
+    </div>
+    <div class="chips" id="writeChips" role="group" aria-label="Choose what to write"></div>
+    <div class="write-wrap">
+      <div class="pad-box"><canvas id="pad" aria-label="Writing pad"></canvas></div>
+      <div>
+        <div class="bk-letter" id="writeGlyph">क</div>
+        <div class="r" id="writeRoman" style="color:var(--ink-2)"></div>
+        <div class="stars" id="stars" aria-live="polite"></div>
+        <p id="writeMsg" style="margin:0 0 12px;min-height:1.5em"></p>
+        <div class="row">
+          <button class="btn primary" id="checkBtn">✓ जाँचो</button>
+          <button class="btn" id="clearBtn">मिटाओ</button>
+          <button class="btn ghost" id="undoBtn">↶ Undo</button>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn ghost" id="guideBtn" aria-pressed="true">Guide: on</button>
+          <button class="btn ghost" id="hearBtn">🔊 सुनो</button>
+          <button class="btn ghost" id="nextWrite">अगला →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="panel-tab" id="tab-quiz" role="tabpanel" hidden>
+    <h2 class="shiro">खेलो</h2>
+    <p class="sub">Ten rounds per game. Choose a game and the matras to practise.</p>
+
+    <div class="panel" id="quizSetup">
+      <div class="seg" role="radiogroup" id="modeSeg">
+        <button role="radio" data-mode="listen">🔊 सुनो और चुनो</button>
+        <button role="radio" data-mode="read">👀 पढ़ो</button>
+        <button role="radio" data-mode="word">✏ शब्द पूरा करो</button>
+      </div>
+      <p class="sub" id="modeDesc" style="margin:10px 0 4px"></p>
+      <div class="row" style="justify-content:space-between;margin-top:6px">
+        <b>Matras in this game</b>
+        <span class="row" style="gap:6px"><button class="btn ghost" id="fAll" style="padding:4px 12px">सभी</button><button class="btn ghost" id="fTwins" style="padding:4px 12px">सिर्फ़ जोड़ियाँ</button></span>
+      </div>
+      <div class="fchips" id="quizFilter"></div>
+      <button class="btn primary" id="startQuiz">खेल शुरू करो</button>
+    </div>
+
+    <div class="panel" id="quizLive" hidden>
+      <div class="q-top"><span id="qRound">Round 1 of 10</span><span id="qScore">Score 0</span></div>
+      <div class="q-bar"><i id="qBar" style="width:0"></i></div>
+      <div class="q-prompt" id="qPrompt"></div>
+      <div class="q-opts" id="qOpts"></div>
+      <div class="q-feedback" id="qFeedback" aria-live="polite"></div>
+      <div class="q-actions">
+        <button class="btn ghost" id="qQuit">Stop game</button>
+        <button class="btn primary" id="qNext" hidden>अगला →</button>
+      </div>
+    </div>
+
+    <div class="panel" id="quizEnd" hidden style="text-align:center">
+      <div class="end-score" id="endScore">8 / 10</div>
+      <p id="endMsg" style="font-size:17px"></p>
+      <div class="row" style="justify-content:center">
+        <button class="btn primary" id="qAgain">फिर से खेलो</button>
+        <button class="btn" id="qSetup">Change game</button>
+      </div>
+    </div>
+
+    <h3 class="shiro">तुम्हारी प्रगति</h3>
+    <p class="sub">How often each matra has been answered right. Saved on this device.</p>
+    <div class="panel">
+      <div class="prog-list" id="progList"></div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn" id="practiseWeak">कमज़ोर मात्राओं का अभ्यास</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog id="matraDlg">
+  <div class="dlg-head"><h2 class="shiro" id="mdTitle"></h2><button class="icon-btn" id="mdClose" aria-label="Close">✕</button></div>
+  <div class="dlg-body" id="mdBody"></div>
+</dialog>
+
+<dialog id="setDlg">
+  <div class="dlg-head"><h2 class="shiro">सेटिंग्स</h2><button class="icon-btn" id="setClose" aria-label="Close">✕</button></div>
+  <div class="dlg-body">
+    <div class="set-row"><div><b>Voice</b><p id="voiceStatus">Looking for a Hindi voice…</p></div><div class="row" style="flex:none;gap:6px"><button class="btn ghost native-only" id="setVoiceSettings" hidden>Voice settings</button><button class="btn ghost" id="testVoice">Test</button></div></div>
+    <div class="set-row"><div><b>Speaking speed</b><p>Slower is easier for beginners.</p></div>
+      <div class="seg" role="radiogroup" id="rateSeg"><button role="radio" data-rate="0.65">धीमा</button><button role="radio" data-rate="0.9">सामान्य</button></div></div>
+    <div class="set-row"><div><b>English sound hints</b><p>Show "ka, kaa, ki" under letters.</p></div><button class="btn ghost" id="romanBtn" aria-pressed="true">On</button></div>
+    <div class="set-row"><div><b>Theme</b><p>Follows your device unless you pick one.</p></div>
+      <div class="seg" role="radiogroup" id="themeSeg"><button role="radio" data-theme="auto">Auto</button><button role="radio" data-theme="light">Light</button><button role="radio" data-theme="dark">Dark</button></div></div>
+    <div class="set-row"><div><b>Progress</b><p>Clears game scores on this device.</p></div><button class="btn ghost" id="resetProg">Reset</button></div>
+  </div>
+</dialog>
+
+<script>
+const STORY = {
+  'क':{hi:'<mark class="m-aa">काका</mark> के घर एक <mark class="m-u">कुत्ता</mark> है। उसका नाम <mark class="m-aa">कालू</mark> है। <mark class="m-aa">कालू</mark> को <mark class="m-oo">कूदना</mark> बहुत पसंद है। एक दिन टीना अपनी <mark class="m-i">किताब</mark> लेकर आई, जिसमें एक <mark class="m-ee">कील</mark> की तस्वीर थी।', en:"Uncle's house has a dog, Kalu, who loves to jump. One day Tina brought her book, which had a picture of a nail."},
+  'ख':{hi:'एक <mark class="m-base">खरगोश</mark> को <mark class="m-aa">खाना</mark> बहुत पसंद था। उसे एक <mark class="m-i">खिलौना</mark> और एक <mark class="m-ee">खीरा</mark> मिला। <mark class="m-u">खुशी</mark> से उसने कहा, "यह तो <mark class="m-oo">खूबसूरत</mark> दिन है!"', en:'A rabbit loved food. He got a toy and a cucumber. Happily he said, "What a beautiful day!"'},
+  'ग':{hi:'एक <mark class="m-base">गधा</mark> और एक <mark class="m-aa">गाय</mark> साथ खेलते थे। <mark class="m-base">गधे</mark> ने एक <mark class="m-i">गिलास</mark> पानी पिया और एक <mark class="m-ee">गीत</mark> गाया। फिर उसने एक <mark class="m-u">गुब्बारा</mark> उड़ाया, जिसकी <mark class="m-oo">गूंज</mark> दूर तक सुनाई दी।', en:'A donkey and a cow played together. The donkey drank a glass of water and sang a song, then blew a balloon whose echo carried far.'},
+  'घ':{hi:'मीना के <mark class="m-base">घर</mark> के पास हरी <mark class="m-aa">घास</mark> थी। वह <mark class="m-ee">घी</mark> लगी रोटी खाकर बगीचे में <mark class="m-oo">घूमने</mark> गई। दौड़ते हुए उसका <mark class="m-u">घुटना</mark> छिल गया।', en:"Near Mina's house was green grass. After eating bread with ghee, she went roaming in the garden and scraped her knee."},
+  'ङ':{hi:'<mark class="m-base">ङ</mark> अकेला बहुत कम आता है। यह अक्सर <mark class="m-aa">अंगूठे</mark> जैसे शब्दों में ग से पहले छिपा होता है।', en:'ङ rarely stands alone — it usually hides just before ग, like in अंगूठा (thumb).'},
+  'च':{hi:'सुबह <mark class="m-aa">चाय</mark> में <mark class="m-ee">चीनी</mark> डालते हुए दादी ने एक <mark class="m-base">चम्मच</mark> गिरा दिया। तभी एक <mark class="m-oo">चूहा</mark> <mark class="m-u">चुपचाप</mark> दौड़ता निकला और एक <mark class="m-i">चिड़िया</mark> उड़ गई।', en:'Adding sugar to tea, grandma dropped a spoon. Just then a mouse quietly scurried past and a bird flew off.'},
+  'छ':{hi:'<mark class="m-u">छुट्टी</mark> के दिन राजू <mark class="m-base">छत</mark> पर गया। वहाँ एक <mark class="m-i">छिपकली</mark> दीवार को <mark class="m-oo">छू</mark> रही थी। बारिश होने लगी तो उसने <mark class="m-aa">छाता</mark> खोल लिया, फिर एक सेब <mark class="m-ee">छीला</mark>।', en:'On a holiday Raju went to the roof, where a lizard was touching the wall. When it rained he opened an umbrella, then peeled an apple.'},
+  'ज':{hi:'टीना ने सपने में एक <mark class="m-aa">जादू</mark> देखा — एक <mark class="m-i">जिराफ़</mark> ने <mark class="m-oo">जूता</mark> और <mark class="m-u">जुराब</mark> पहन ली! जिराफ़ दौड़ा और उसकी <mark class="m-ee">जीत</mark> हुई। जागकर टीना ने <mark class="m-base">जल</mark> पिया।', en:'Tina dreamed a giraffe wore a shoe and socks and won a race. Waking up, she drank water.'},
+  'झ':{hi:'पहाड़ पर एक <mark class="m-base">झरना</mark> एक <mark class="m-ee">झील</mark> में गिरता था। रात में तारे <mark class="m-i">झिलमिल</mark> करते थे। नीचे एक <mark class="m-oo">झूला</mark> था, जिस पर बैठने के लिए गोलू को <mark class="m-u">झुकना</mark> पड़ा। सफ़ाई वाली ने <mark class="m-aa">झाड़ू</mark> से रास्ता साफ़ किया।', en:'A waterfall fell into a lake on the hill. Stars twinkled at night. Golu had to bend to sit on the swing below, while the cleaner swept the path.'},
+  'ञ':{hi:'<mark class="m-base">ञ</mark> भी अकेला कम आता है। यह अक्सर <mark class="m-base">पंछी</mark> जैसे शब्दों में छ से पहले छिपा होता है।', en:'ञ also rarely stands alone — it hides just before छ, like in पंछी (bird).'},
+  'ट':{hi:'बाज़ार में राजू ने <mark class="m-base">टमाटर</mark> का एक <mark class="m-u">टुकड़ा</mark> गिरा दिया। बस का <mark class="m-i">टिकट</mark> लेते समय उसकी <mark class="m-aa">टांग</mark> पर <mark class="m-ee">टीके</mark> का निशान दिखा। अचानक उसका बैग <mark class="m-oo">टूट</mark> गया।', en:'Raju dropped a piece of tomato at the market. Buying a bus ticket, a vaccine mark showed on his leg. Suddenly his bag broke.'},
+  'ठ':{hi:'डाकिये ने चिट्ठी पर एक <mark class="m-base">ठप्पा</mark> लगाया।', en:'The postman stamped the letter.'},
+  'ड':{hi:'गली में एक आदमी <mark class="m-base">डमरू</mark> बजा रहा था। पेड़ की <mark class="m-aa">डाल</mark> पर एक <mark class="m-i">डिब्बा</mark> टंगा था। नदी में बच्चों ने <mark class="m-u">डुबकी</mark> लगाई, पर एक गेंद <mark class="m-oo">डूबने</mark> लगी।', en:'A man played a small drum in the street. A box hung on a branch. Children dived in the river, but a ball began to sink.'},
+  'ढ':{hi:'सिपाही अपनी <mark class="m-aa">ढाल</mark> <mark class="m-oo">ढूंढ</mark> रहा था। उसे बर्तन का <mark class="m-base">ढक्कन</mark> तो मिला, पर ढाल नहीं मिली।', en:'The soldier was searching for his shield. He found a pot lid, but not the shield.'},
+  'ण':{hi:'<mark class="m-base">गणेश</mark> जी की <mark class="m-ee">वाणी</mark> बहुत मीठी मानी जाती है।', en:"Lord Ganesh's voice is thought to be very sweet."},
+  'त':{hi:'गर्मी में <mark class="m-base">तरबूज़</mark> खाते हुए मीना ने एक <mark class="m-i">तितली</mark> देखी। दरवाज़े पर <mark class="m-aa">ताला</mark> लगा था। "<mark class="m-u">तुम</mark> आ जाओ," उसने पुकारा, फिर आसमान में <mark class="m-oo">तूफ़ान</mark> जैसा बादल और <mark class="m-ee">तीर</mark> जैसी बिजली दिखी।', en:'Eating watermelon, Mina saw a butterfly. The door had a lock. "You come here," she called, then a storm cloud and arrow-like lightning appeared.'},
+  'थ':{hi:'मेरी <mark class="m-aa">थाली</mark> में रोटी <mark class="m-ee">थी</mark>, और मेरे <mark class="m-base">थैले</mark> में एक किताब थी।', en:'My plate had bread, and my bag had a book.'},
+  'द':{hi:'एक <mark class="m-i">दिन</mark> <mark class="m-aa">दादा</mark> ने <mark class="m-base">दवा</mark> ली और एक <mark class="m-ee">दीया</mark> जलाया। उन्होंने कहा, "यह <mark class="m-u">दुनिया</mark> बहुत सुंदर है।" फिर उन्होंने एक गिलास <mark class="m-oo">दूध</mark> पिया।', en:'One day grandfather took medicine and lit a lamp. He said the world is beautiful, then drank a glass of milk.'},
+  'ध':{hi:'राजा के पास एक <mark class="m-base">धनुष</mark> था, जिसकी डोर एक <mark class="m-aa">धागे</mark> जैसी पतली थी। <mark class="m-oo">धूप</mark> में खड़े होकर उसने तीर चलाया, और दूर आग से <mark class="m-u">धुआं</mark> उठा।', en:'The king had a bow with a thread-thin string. Standing in the sunshine, he shot an arrow, and smoke rose from a distant fire.'},
+  'न':{hi:'<mark class="m-aa">नाव</mark> में <mark class="m-base">नमक</mark> और <mark class="m-ee">नींबू</mark> रखे थे। रास्ते में एक पत्थर से नाव पर <mark class="m-i">निशान</mark> पड़ गया, जिससे थोड़ा <mark class="m-u">नुकसान</mark> हुआ।', en:'The boat carried salt and lemon. A stone left a mark on the boat, causing a little damage.'},
+  'प':{hi:'<mark class="m-i">पिता</mark> के साथ राजू ने एक <mark class="m-ee">पीली</mark> <mark class="m-base">पतंग</mark> उड़ाई। वे <mark class="m-u">पुल</mark> पार करके नदी के <mark class="m-aa">पानी</mark> तक गए। शाम तक उनका <mark class="m-oo">पूरा</mark> दिन मज़े से बीता।', en:"With his father, Raju flew a yellow kite. They crossed a bridge to the river. Their whole day passed happily."},
+  'फ':{hi:'बगीचे के <mark class="m-aa">फाटक</mark> पर एक टोकरी में <mark class="m-base">फल</mark> और <mark class="m-oo">फूल</mark> रखे थे। एक बच्ची के जूते का <mark class="m-ee">फीता</mark> खुल गया और वह <mark class="m-i">फिसल</mark> गई। पास ही एक चिड़िया <mark class="m-u">फुदक</mark> रही थी।', en:"At the garden gate a basket held fruit and flowers. A girl's shoelace came undone and she slipped, while a bird hopped nearby."},
+  'ब':{hi:'एक <mark class="m-oo">बूढ़े</mark> किसान के पास एक <mark class="m-base">बकरी</mark> और एक <mark class="m-i">बिल्ली</mark> थी। उसने ज़मीन में <mark class="m-ee">बीज</mark> बोए। आसमान में <mark class="m-aa">बादल</mark> छाए और एक <mark class="m-u">बुलबुल</mark> गाने लगी।', en:'An old farmer had a goat and a cat. He sowed seeds. Clouds gathered and a songbird began to sing.'},
+  'भ':{hi:'मेले में बहुत <mark class="m-ee">भीड़</mark> थी। एक <mark class="m-base">भालू</mark> की गुड़िया देखकर बच्चे <mark class="m-aa">भागने</mark> लगे। <mark class="m-oo">भूख</mark> लगने पर सबने <mark class="m-u">भुट्टा</mark> और <mark class="m-i">भिंडी</mark> की सब्ज़ी खाई।', en:'There was a big crowd at the fair. Seeing a bear doll, children ran off. When hungry, everyone ate corn and okra.'},
+  'म':{hi:'मीना ने बगीचे में <mark class="m-base">मटर</mark> और <mark class="m-oo">मूली</mark> उगाई। उसके हाथ <mark class="m-i">मिट्टी</mark> से भर गए, पर उसकी <mark class="m-u">मुस्कान</mark> गायब नहीं हुई। दादी ने उसे एक <mark class="m-ee">मीठा</mark> लड्डू और फूलों की <mark class="m-aa">माला</mark> दी।', en:'Mina grew peas and radish; her hands were muddy but she kept smiling. Grandma gave her a sweet laddoo and a garland.'},
+  'य':{hi:'<mark class="m-base">यह</mark> किताब मुझे बहुत <mark class="m-aa">याद</mark> आती है। दादी कहती थीं, "ज़िंदगी <mark class="m-oo">यूँ</mark> ही चलती रहती है।"', en:'I remember this book fondly. Grandma used to say life just keeps going like this.'},
+  'र':{hi:'<mark class="m-aa">राजा</mark> ने एक <mark class="m-i">रिक्शा</mark> किराए पर लिया, जिसका <mark class="m-base">रंग</mark> लाल था। रास्ते में एक <mark class="m-ee">रीछ</mark> की तस्वीर देख वह रुक गया। उसका <mark class="m-u">रुमाल</mark> गिर गया, और वह थोड़ा <mark class="m-oo">रूठ</mark> गया।', en:'The king rented a red rickshaw. Seeing a bear picture he stopped. His handkerchief fell, and he sulked a little.'},
+  'ल':{hi:'एक <mark class="m-base">लड़का</mark> <mark class="m-aa">लाल</mark> कॉपी में कुछ <mark class="m-i">लिखना</mark> सीख रहा था। खेलते समय उसने <mark class="m-ee">लीची</mark> खाई और फिर दोस्तों के साथ <mark class="m-u">लुका-छिपी</mark> खेली।', en:'A boy was learning to write in a red notebook. He ate lychee and played hide-and-seek with friends.'},
+  'व':{hi:'हम <mark class="m-base">वन</mark> में घूमने गए और शाम को <mark class="m-aa">वापस</mark> घर आ गए।', en:'We went roaming in the forest and came back home in the evening.'},
+  'श':{hi:'<mark class="m-aa">शादी</mark> में सबने ठंडा <mark class="m-base">शरबत</mark> पिया। <mark class="m-i">शिक्षक</mark> जी ने <mark class="m-ee">शीशे</mark> में खुद को देखा और मुस्कुराए। फिर कार्यक्रम <mark class="m-u">शुरू</mark> हुआ।', en:'At the wedding everyone drank cold sherbet. The teacher looked in a mirror and smiled, then the program began.'},
+  'ष':{hi:'<mark class="m-base">ष</mark> भी अकेला कम आता है। यह अक्सर <mark class="m-base">भाषा</mark> जैसे शब्दों के बीच में आता है।', en:'ष also rarely stands alone — it usually appears in the middle of words like भाषा (language).'},
+  'स':{hi:'<mark class="m-oo">सूरज</mark> निकलते ही राजू <mark class="m-base">सड़क</mark> पर दौड़ने निकला। घर लौटकर उसने <mark class="m-aa">साबुन</mark> से हाथ धोए। <mark class="m-ee">सीढ़ी</mark> चढ़ते हुए उसका <mark class="m-i">सिर</mark> हल्का सा टकरा गया, यह सब एक <mark class="m-u">सुबह</mark> हुआ।', en:'As the sun rose, Raju went running. Back home he washed with soap, and climbing the stairs bumped his head lightly, all one morning.'},
+  'ह':{hi:'जंगल में एक <mark class="m-base">हरा</mark> पेड़ था, जिसके पास <mark class="m-aa">हाथी</mark> और <mark class="m-i">हिरण</mark> खेलते थे। "मैं एक कलाकार <mark class="m-oo">हूँ</mark>," हाथी ने कहा, और अपने <mark class="m-u">हुनर</mark> से रेत में एक चमकते <mark class="m-ee">हीरे</mark> जैसी तस्वीर बनाई।', en:'A green tree stood in the forest where an elephant and deer played. "I am an artist," said the elephant, drawing a diamond-like picture in the sand.'}
+};
+
+/* ---------- storage ---------- */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem('matramitra:' + k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem('matramitra:' + k, JSON.stringify(v)); }catch(e){} }
+};
+const settings = Object.assign({rate:0.9, roman:true, theme:'auto'}, store.get('settings', {}));
+let stats = store.get('stats', {});
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ---------- matras ---------- */
+const MATRAS = [
+  {k:'a',  sign:'',  vowel:'अ', rom:'a',  h:230, s:25, d:0, pair:'aa', pos:'none',  name:'अ — कोई मात्रा नहीं', say:'अ', en:'No sign at all',
+   tip:'Every consonant already carries a hidden "a". क is "ka", not "k". So अ needs no matra.'},
+  {k:'aa', sign:'ा', vowel:'आ', rom:'aa', h:42,  d:0, pair:'a',  pos:'after', name:'आ की मात्रा', say:'आ की मात्रा', en:'Standing line',
+   tip:'A straight standing line after the letter stretches "a" into a long "aa": का = kaa.'},
+  {k:'i',  sign:'ि', vowel:'इ', rom:'i',  h:2,   d:0, pair:'ee', pos:'before',name:'इ की मात्रा', say:'इ की मात्रा', en:'Short i, hook in front',
+   tip:'Written first, heard second. The hook stands in front of the letter, but you say it after: कि = ki.'},
+  {k:'ee', sign:'ी', vowel:'ई', rom:'ee', h:2,   d:1, pair:'i',  pos:'after', name:'ई की मात्रा', say:'ई की मात्रा', en:'Long ee, tail behind',
+   tip:'The long twin of ि. The hook moves behind the letter: की = kee.'},
+  {k:'u',  sign:'ु', vowel:'उ', rom:'u',  h:170, d:0, pair:'oo', pos:'below', name:'उ की मात्रा', say:'उ की मात्रा', en:'Short u, small curl',
+   tip:'A small curl under the letter makes a short "u", as in कुत्ता.'},
+  {k:'oo', sign:'ू', vowel:'ऊ', rom:'oo', h:170, d:1, pair:'u',  pos:'below', name:'ऊ की मात्रा', say:'ऊ की मात्रा', en:'Long oo, bigger curl',
+   tip:'The curl gets bigger and turns the other way for a long "oo", as in फूल.'},
+  {k:'ri', sign:'ृ', vowel:'ऋ', rom:'ri', h:125, d:0, pair:'i',  pos:'below', name:'ऋ की मात्रा', say:'ऋ की मात्रा', en:'Little hook below',
+   tip:'A tiny hook below that says "ri", as in कृपा. It mostly appears in words from Sanskrit.'},
+  {k:'e',  sign:'े', vowel:'ए', rom:'ay',  h:208, d:0, pair:'ai', pos:'above', name:'ए की मात्रा', say:'ए की मात्रा', en:'One flag on top · kay',
+   tip:'One slanted flag on the headline: के = kay, just like the English letter K.'},
+  {k:'ai', sign:'ै', vowel:'ऐ', rom:'ae', h:208, d:1, pair:'e',  pos:'above', name:'ऐ की मात्रा', say:'ऐ की मात्रा', en:'Two flags on top · kae',
+   tip:'Two flags make a wider sound: कै = kae, like the "ca" in "cat" held longer.'},
+  {k:'o',  sign:'ो', vowel:'ओ', rom:'o',  h:268, d:0, pair:'au', pos:'afterabove', name:'ओ की मात्रा', say:'ओ की मात्रा', en:'Line with one flag',
+   tip:'The ा line with one flag on top: को = ko.'},
+  {k:'au', sign:'ौ', vowel:'औ', rom:'au', h:268, d:1, pair:'o',  pos:'afterabove', name:'औ की मात्रा', say:'औ की मात्रा', en:'Line with two flags',
+   tip:'The ा line with two flags on top: कौ = kau.'},
+  {k:'aw', sign:'ॉ', vowel:'ऑ', rom:'aw', h:312, d:0, pair:'o',  pos:'afterabove', name:'ऑ की मात्रा', say:'ऑ की मात्रा', en:'Line with a little moon',
+   tip:'The ा line with a small moon on top. It is used for English words like ball (बॉल) and doctor (डॉक्टर).'},
+  {k:'an', sign:'ं', vowel:'अं', rom:'an', h:335, d:0, pair:'cb', pos:'above', name:'अनुस्वार', say:'अनुस्वार', en:'Dot on top',
+   tip:'A dot on the headline adds an "n" or "m" sound: कंघा = kanghaa, पंखा = pankhaa.'},
+  {k:'cb', sign:'ँ', vowel:'अँ', rom:'ã',  h:335, d:1, pair:'an', pos:'above', name:'चंद्रबिंदु', say:'चंद्रबिंदु', en:'Moon with a dot',
+   tip:'Moon with a dot: the sound goes gently through the nose, as in चाँद and माँ.'},
+  {k:'ah', sign:'ः', vowel:'अः', rom:'ah', h:18,  s:40, d:0, pair:'aa', pos:'after', name:'विसर्ग', say:'विसर्ग', en:'Two dots after',
+   tip:'Two dots after the letter add a soft breath of "h". It is rare, mostly in words like दुःख.'}
+];
+const M = Object.fromEntries(MATRAS.map(m => [m.k, m]));
+const POS = {
+  none:'No mark — the letter on its own', after:'After the letter', before:'Before the letter',
+  below:'Below the letter', above:'On top of the letter', afterabove:'After the letter, with a mark on top'
+};
+const POS_HI = {none:'अकेला', after:'बाद में', before:'पहले', below:'नीचे', above:'ऊपर', afterabove:'बाद में + ऊपर'};
+const mStyle = m => `--h:${m.h};--d:${m.d};${m.s ? `--s:${m.s}%;` : ''}`;
+const DC = '\u25CC';
+const signOnCircle = m => m.sign ? DC + m.sign : '—';
+
+/* ---------- words for each matra: hindi|sound|meaning ---------- */
+const WORDS = {
+  a:['कमल|kamal|lotus','खरगोश|khargosh|rabbit','गधा|gadhaa|donkey','घर|ghar|house','चम्मच|chammach|spoon','छत|chhat|roof','जल|jal|water','झरना|jharnaa|waterfall','टमाटर|tamaatar|tomato','ठप्पा|thappaa|stamp','डमरू|damroo|small drum','ढक्कन|dhakkan|lid','तरबूज़|tarbooz|watermelon','दवा|davaa|medicine','धनुष|dhanush|bow','नमक|namak|salt','पतंग|patang|kite','फल|phal|fruit','बकरी|bakree|goat','भवन|bhavan|building','मटर|matar|peas','रथ|rath|chariot','लड़का|ladkaa|boy','वन|van|forest','शरबत|sharbat|sweet drink','सड़क|sadak|road','हल|hal|plough','क्षत्रिय|kshatriya|warrior','श्रमिक|shramik|worker'],
+  aa:['काका|kaakaa|uncle','खाना|khaanaa|food','गाय|gaay|cow','घास|ghaas|grass','चाय|chaay|tea','छाता|chhaataa|umbrella','जादू|jaadoo|magic','झाड़ू|jhaadoo|broom','डाल|daal|branch','ढाल|dhaal|shield','ताला|taalaa|lock','थाली|thaalee|plate','दादा|daadaa|grandfather','धागा|dhaagaa|thread','नाव|naav|boat','पानी|paanee|water','फाटक|phaatak|gate','बादल|baadal|cloud','भालू|bhaaloo|bear','माला|maalaa|garland','याद|yaad|memory','राजा|raajaa|king','लाल|laal|red','शाम|shaam|evening','साबुन|saabun|soap','हाथी|haathee|elephant','ज्ञानी|gyaanee|wise person'],
+  i:['किताब|kitaab|book','खिलौना|khilaunaa|toy','गिलास|gilaas|glass','चिड़िया|chidiyaa|bird','छिपकली|chhipkalee|lizard','जिराफ़|jiraaf|giraffe','झिलमिल|jhilmil|twinkle','टिकट|tikat|ticket','डिब्बा|dibbaa|box','तितली|titlee|butterfly','दिन|din|day','निशान|nishaan|mark','पिता|pitaa|father','फिसलना|phisalnaa|to slip','बिल्ली|billee|cat','भिंडी|bhindee|okra','मिट्टी|mittee|mud','रिक्शा|rikshaa|rickshaw','लिखना|likhnaa|to write','शिक्षक|shikshak|teacher','सिर|sir|head','हिरण|hiran|deer','त्रिशूल|trishool|trident'],
+  ee:['कील|keel|nail','खीर|kheer|rice pudding','गीत|geet|song','घी|ghee|ghee','चीनी|cheenee|sugar','जीभ|jeebh|tongue','झील|jheel|lake','टीका|teekaa|tilak mark','तीर|teer|arrow','दीया|deeyaa|lamp','धीरे|dheeray|slowly','नींबू|neemboo|lemon','पीला|peelaa|yellow','फीता|pheetaa|ribbon','बीज|beej|seed','भीड़|bheed|crowd','मीठा|meethaa|sweet','रीछ|reechh|bear','लीची|leechee|lychee','शीशा|sheeshaa|mirror','सीढ़ी|seedhee|stairs','हीरा|heeraa|diamond'],
+  u:['कुत्ता|kuttaa|dog','खुशी|khushee|happiness','गुब्बारा|gubbaaraa|balloon','घुटना|ghutnaa|knee','चुप|chup|quiet','छुट्टी|chhuttee|holiday','जुराब|juraab|socks','झुमका|jhumkaa|earring','टुकड़ा|tukdaa|piece','डुबकी|dubkee|dive','तुम|tum|you','धुआँ|dhuaan|smoke','नुकीला|nukeelaa|pointed','पुल|pul|bridge','फुदकना|phudaknaa|to hop','बुलबुल|bulbul|songbird','भुट्टा|bhuttaa|corn cob','मुर्गा|murgaa|rooster','रुमाल|rumaal|handkerchief','सुई|suee|needle','सुबह|subah|morning','हुक|huk|hook'],
+  oo:['कूदना|koodnaa|to jump','गूँज|goonj|echo','घूमना|ghoomnaa|to roam','चूहा|choohaa|mouse','छूना|chhoonaa|to touch','जूता|jootaa|shoe','झूला|jhoolaa|swing','टूटना|tootnaa|to break','डूबना|doobnaa|to sink','ढूँढना|dhoondhnaa|to search','तूफ़ान|toofaan|storm','दूध|doodh|milk','धूप|dhoop|sunshine','पूरी|pooree|puri bread','फूल|phool|flower','बूँद|boond|drop','भूख|bhookh|hunger','मूली|moolee|radish','रूई|rooee|cotton','सूरज|sooraj|sun'],
+  ri:['कृपा|kripaa|kindness','कृषक|krishak|farmer','गृह|grih|home','दृश्य|drishya|scene','नृत्य|nritya|dance','पृथ्वी|prithvee|earth','मृग|mrig|deer','वृक्ष|vriksh|tree','हृदय|hriday|heart','ऋषि|rishi|sage'],
+  e:['केला|kaylaa|banana','खेल|khayl|game','गेंद|gaynd|ball','घेरा|ghayraa|circle','चेहरा|chayhraa|face','छेद|chhayd|hole','जेब|jayb|pocket','टेढ़ा|taydhaa|crooked','तेल|tayl|oil','देश|daysh|country','नेवला|nayvlaa|mongoose','पेड़|payd|tree','बेर|bayr|jujube berry','भेड़|bhayd|sheep','मेज़|mayz|table','रेल|rayl|train','लेटना|laytnaa|to lie down','शेर|shayr|lion','सेब|sayb|apple'],
+  ai:['कैंची|kaenchee|scissors','गैया|gaeyaa|cow','चैन|chaen|calm','तैरना|taernaa|to swim','थैला|thaelaa|bag','नैया|naeyaa|little boat','पैर|paer|foot','पैसा|paesaa|money','बैल|bael|ox','बैंगन|baengan|brinjal','भैंस|bhaens|buffalo','मैदान|maedaan|playground','मैना|maenaa|myna bird','सैनिक|saenik|soldier','हैरान|haeraan|surprised'],
+  o:['कोयल|koyal|cuckoo','खोलना|kholnaa|to open','गोल|gol|round','घोड़ा|ghodaa|horse','चोटी|chotee|braid','छोटा|chhotaa|small','जोकर|jokar|joker','टोपी|topee|cap','ढोल|dhol|drum','तोता|totaa|parrot','धोबी|dhobee|washerman','मोर|mor|peacock','मोती|motee|pearl','रोटी|rotee|bread','लोटा|lotaa|water pot','सोना|sonaa|gold','होंठ|honth|lips'],
+  au:['कौआ|kauaa|crow','खौलना|khaulnaa|to boil','चौकी|chaukee|low stool','जौ|jau|barley','तौलिया|tauliyaa|towel','दौड़|daud|race','नौका|naukaa|boat','पौधा|paudhaa|plant','बौना|baunaa|dwarf','मौसम|mausam|weather','मौसी|mausee|aunt','लौकी|laukee|bottle gourd','सौ|sau|hundred'],
+  aw:['डॉक्टर|dawktar|doctor','बॉल|bawl|ball','कॉपी|kawpee|notebook','टॉफ़ी|tawfee|toffee','हॉकी|hawkee|hockey','चॉकलेट|chawklayt|chocolate','कॉलेज|kawlayj|college','ऑटो|awto|auto-rickshaw'],
+  an:['कंघा|kanghaa|comb','गंगा|gangaa|the Ganga','चंदा|chandaa|moon','जंगल|jangal|forest','झंडा|jhandaa|flag','ठंडा|thandaa|cold','डंडा|dandaa|stick','तंबू|tamboo|tent','पंखा|pankhaa|fan','बंदर|bandar|monkey','मंदिर|mandir|temple','रंग|rang|colour','शंख|shankh|conch shell','संतरा|santraa|orange','हंस|hans|swan','अंगूर|angoor|grapes'],
+  cb:['हँसना|hansnaa|to laugh','चाँद|chaand|moon','आँख|aankh|eye','गाँव|gaanv|village','साँप|saanp|snake','दाँत|daant|tooth','ऊँट|oont|camel','पाँच|paanch|five','माँ|maa|mother','कुआँ|kuaan|well','अँधेरा|andhayraa|darkness'],
+  ah:['दुःख|duhkh|sorrow','प्रातः|praatah|morning','अतः|atah|therefore','पुनः|punah|again','नमः|namah|salutation','छः|chhah|six']
+};
+const W = {};
+for(const k in WORDS) W[k] = WORDS[k].map(s => { const [hi, rom, en] = s.split('|'); return {hi, rom, en, k}; });
+
+/* ---------- letters ---------- */
+const VOWELS = [
+  ['अ','a','अनार','anaar','pomegranate'],['आ','aa','आम','aam','mango'],['इ','i','इमली','imlee','tamarind'],['ई','ee','ईख','eekh','sugarcane'],
+  ['उ','u','उल्लू','ulloo','owl'],['ऊ','oo','ऊन','oon','wool'],['ऋ','ri','ऋषि','rishi','sage'],['ए','e','एक','ayk','one'],
+  ['ऐ','ai','ऐनक','aenak','spectacles'],['ओ','o','ओस','os','dew'],['औ','au','औज़ार','auzaar','tools'],['ऑ','aw','ऑटो','awto','auto-rickshaw'],
+  ['अं','an','अंगूर','angoor','grapes'],['अँ','cb','अँधेरा','andhayraa','darkness'],['अः','ah','दुःख','duhkh','sorrow']
+];
+const VARGA = [
+  {hi:'क वर्ग', en:'from the throat', list:['क','ख','ग','घ','ङ']},
+  {hi:'च वर्ग', en:'from the palate', list:['च','छ','ज','झ','ञ']},
+  {hi:'ट वर्ग', en:'tongue curled back', list:['ट','ठ','ड','ढ','ण']},
+  {hi:'त वर्ग', en:'tongue on the teeth', list:['त','थ','द','ध','न']},
+  {hi:'प वर्ग', en:'with the lips', list:['प','फ','ब','भ','म']},
+  {hi:'अंतःस्थ', en:'in-between sounds', list:['य','र','ल','व']},
+  {hi:'ऊष्म', en:'hissing and breathy', list:['श','ष','स','ह']},
+  {hi:'संयुक्त व्यंजन', en:'joined letters', list:['क्ष','त्र','ज्ञ','श्र']},
+  {hi:'द्विगुण व्यंजन', en:'flapped, with a dot below', list:['ड़','ढ़']}
+];
+const ROOT = {'क':'k','ख':'kh','ग':'g','घ':'gh','ङ':'ng','च':'ch','छ':'chh','ज':'j','झ':'jh','ञ':'ny','ट':'T','ठ':'Th','ड':'D','ढ':'Dh','ण':'N',
+  'त':'t','थ':'th','द':'d','ध':'dh','न':'n','प':'p','फ':'ph','ब':'b','भ':'bh','म':'m','य':'y','र':'r','ल':'l','व':'v','श':'sh','ष':'Sh','स':'s','ह':'h',
+  'क्ष':'ksh','त्र':'tr','ज्ञ':'gy','श्र':'shr','ड़':'R','ढ़':'Rh'};
+const LETTER_WORD = {
+  'क':'कमल|kamal|lotus','ख':'खरगोश|khargosh|rabbit','ग':'गधा|gadhaa|donkey','घ':'घर|ghar|house','ङ':'अंगूठा|angoothaa|thumb',
+  'च':'चम्मच|chammach|spoon','छ':'छत|chhat|roof','ज':'जल|jal|water','झ':'झरना|jharnaa|waterfall','ञ':'पंछी|panchhee|bird',
+  'ट':'टमाटर|tamaatar|tomato','ठ':'ठप्पा|thappaa|stamp','ड':'डमरू|damroo|small drum','ढ':'ढक्कन|dhakkan|lid','ण':'गणेश|ganaysh|Ganesh',
+  'त':'तरबूज़|tarbooz|watermelon','थ':'थैला|thaelaa|bag','द':'दवा|davaa|medicine','ध':'धनुष|dhanush|bow','न':'नमक|namak|salt',
+  'प':'पतंग|patang|kite','फ':'फल|phal|fruit','ब':'बकरी|bakree|goat','भ':'भालू|bhaaloo|bear','म':'मटर|matar|peas',
+  'य':'यज्ञ|yagya|fire ritual','र':'रथ|rath|chariot','ल':'लड़का|ladkaa|boy','व':'वन|van|forest',
+  'श':'शरबत|sharbat|sweet drink','ष':'षटकोण|shatkon|hexagon','स':'सड़क|sadak|road','ह':'हल|hal|plough',
+  'क्ष':'क्षत्रिय|kshatriya|warrior','त्र':'त्रिशूल|trishool|trident','ज्ञ':'ज्ञानी|gyaanee|wise person','श्र':'श्रमिक|shramik|worker',
+  'ड़':'पेड़|payd|tree','ढ़':'पढ़ना|padhnaa|to read'
+};
+const ALL_CONS = VARGA.flatMap(g => g.list);
+const QUIZ_CONS = ['क','ख','ग','घ','च','छ','ज','झ','ट','ठ','ड','ढ','त','थ','द','ध','न','प','फ','ब','भ','म','य','र','ल','व','श','स','ह'];
+const FORM_ORDER = ['a','aa','i','ee','u','oo','ri','e','ai','o','au','aw','an','cb','ah'];
+const CLASSIC = ['a','aa','i','ee','u','oo','e','ai','o','au','an','ah'];
+
+/* ---------- Devanagari clusters (so a whole syllable can be coloured) ---------- */
+function isMark(c){ return (c>=0x900&&c<=0x903)||(c>=0x93A&&c<=0x94F)||(c>=0x951&&c<=0x957)||(c>=0x962&&c<=0x963)||c===0x200C||c===0x200D; }
+function isCons(c){ return (c>=0x915&&c<=0x939)||(c>=0x958&&c<=0x95F); }
+function clusters(w){
+  const out = [];
+  for(const ch of w){
+    const c = ch.codePointAt(0);
+    const prev = out.length ? out[out.length - 1] : '';
+    if(out.length && (isMark(c) || (prev.endsWith('\u094D') && isCons(c)))) out[out.length - 1] += ch;
+    else out.push(ch);
+  }
+  return out;
+}
+function targetIndex(cs, m){ return m.sign ? cs.findIndex(c => c.includes(m.sign)) : 0; }
+function markWord(word, m){
+  const cs = clusters(word), idx = targetIndex(cs, m);
+  return cs.map((c, i) => i === idx ? `<span class="hl mx mxbg" style="${mStyle(m)}">${c}</span>` : c).join('');
+}
+/* index of example words by first syllable, for the barakhadi */
+const BY_FIRST = {};
+Object.values(W).flat().forEach(w => { const f = clusters(w.hi)[0]; (BY_FIRST[f] = BY_FIRST[f] || []).push(w); });
+const syl = (c, k) => c + M[k].sign;
+const romOf = (c, k) => (ROOT[c] || '') + M[k].rom;
+const validForm = (c, k) => !(c === 'र' && k === 'ri');
+
+/* ---------- speech ---------- */
+/* In the Android app, window.AndroidTTS is a bridge to the phone's own text-to-speech. In a browser, the Web Speech API is used. */
+const nativeTTS = window.AndroidTTS || null;
+const webTTS = !nativeTTS && 'speechSynthesis' in window;
+const canSpeak = !!nativeTTS || webTTS;
+let hiVoice = null, nativeHindi = false, voicesChecked = false, speakTok = 0;
+const pendingTTS = {};
+window.__ttsEvent = (id, ev) => {
+  const p = pendingTTS[id]; if(!p) return;
+  if(ev === 'start'){ p.start(); return; }
+  delete pendingTTS[id];
+  if(ev === 'error') p.err(); else p.end();
+};
+function checkNative(){
+  try{ if(nativeTTS.available()){ nativeHindi = nativeTTS.hasHindi(); voicesChecked = true; updateVoiceUI(); } }catch(e){}
+}
+window.__ttsReady = checkNative;
+function loadVoices(){
+  if(!webTTS) return;
+  const vs = speechSynthesis.getVoices();
+  hiVoice = vs.find(v => v.lang === 'hi-IN') || vs.find(v => /^hi/i.test(v.lang)) || null;
+  if(vs.length) voicesChecked = true;
+  updateVoiceUI();
+}
+if(webTTS){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+if(nativeTTS) setTimeout(checkNative, 0);
+setTimeout(() => { voicesChecked = true; updateVoiceUI(); }, 2500);
+function updateVoiceUI(){
+  const st = $('#voiceStatus');
+  const hindi = nativeTTS ? nativeHindi : !!hiVoice;
+  if(!canSpeak){ st.textContent = 'This browser cannot speak aloud.'; }
+  else if(hindi){ st.textContent = nativeTTS ? "Using the phone's Hindi voice." : 'Using ' + hiVoice.name + '.'; }
+  else if(!voicesChecked){ st.textContent = 'Looking for a Hindi voice…'; }
+  else st.textContent = nativeTTS
+    ? 'No Hindi voice on this phone yet. Tap Voice settings, pick Speech Services by Google, and install Hindi.'
+    : 'No Hindi voice found. Sounds may be missing or read with an English accent.';
+  $('#voiceWarnText').textContent = nativeTTS
+    ? "No Hindi voice on this phone yet, so letters won't be read aloud properly."
+    : "This browser has no Hindi voice, so letters won't be read aloud. Chrome on Android or a computer usually has one.";
+  $$('.native-only').forEach(el => { el.hidden = !nativeTTS; });
+  $('#voiceWarn').hidden = !(voicesChecked && !hindi && !store.get('voiceWarnClosed', false));
+}
+function openVoiceSettings(){ try{ nativeTTS && nativeTTS.openTtsSettings(); }catch(e){} }
+function stopSpeech(){
+  try{ if(nativeTTS) nativeTTS.stop(); else if(webTTS) speechSynthesis.cancel(); }catch(e){}
+}
+function flash(el, ok){
+  if(!el) return;
+  el.classList.add(ok ? 'playing' : 'novoice');
+  setTimeout(() => el.classList.remove('playing', 'novoice'), 900);
+}
+function speak(text, el, onend){
+  if(!text) return;
+  if(!canSpeak){ flash(el, false); if(onend) setTimeout(onend, 500); return; }
+  const tok = ++speakTok;
+  let done = false;
+  const fin = () => { if(done) return; done = true; if(tok === speakTok && onend) onend(); };
+  const fallback = () => { if(onend) setTimeout(fin, 1400 + text.length * 260 / settings.rate); };
+  if(nativeTTS){
+    const id = 'u' + tok;
+    pendingTTS[id] = {start: () => flash(el, true), end: fin, err: () => { flash(el, false); fin(); }};
+    try{ nativeTTS.speak(text, settings.rate, id); }catch(e){ delete pendingTTS[id]; flash(el, false); fin(); return; }
+    fallback();
+    return;
+  }
+  speechSynthesis.cancel();
+  setTimeout(() => {
+    if(tok !== speakTok) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'hi-IN'; u.rate = settings.rate; if(hiVoice) u.voice = hiVoice;
+    u.onstart = () => flash(el, true);
+    u.onend = fin;
+    u.onerror = e => { if(e.error !== 'interrupted' && e.error !== 'canceled') flash(el, false); fin(); };
+    speechSynthesis.speak(u);
+    fallback();
+  }, 40);
+}
+
+/* ---------- tabs ---------- */
+const TABS = ['varnmala','matras','barakhadi','write','quiz'];
+function showTab(t){
+  if(!TABS.includes(t)) t = 'varnmala';
+  stopAll();
+  $$('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false'));
+  TABS.forEach(x => { $('#tab-' + x).hidden = x !== t; });
+  store.set('tab', t);
+  if(location.hash !== '#' + t) history.replaceState(null, '', '#' + t);
+  if(t === 'write') requestAnimationFrame(sizePad);
+  if(t === 'matras') renderMatraGrid();
+  if(t === 'quiz') renderProgress();
+  window.scrollTo(0, 0);
+}
+$$('.tab').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+
+/* ---------- varnmala ---------- */
+function tileHTML(g, w, r, extra){ return `<span class="g">${g}</span><span class="w">${w || ''}</span><span class="r">${r || ''}</span>${extra || ''}`; }
+(function renderVarnmala(){
+  const vg = $('#vowelGrid');
+  VOWELS.forEach(([v, k, w, wr, en]) => {
+    const m = M[k], b = document.createElement('button');
+    b.className = 'tile mxbg'; b.style.cssText = mStyle(m);
+    b.innerHTML = tileHTML(`<span class="mx">${v}</span>`, w, wr + ' · ' + en, `<span class="sign-corner mx" aria-label="matra">${signOnCircle(m)}</span>`);
+    b.setAttribute('aria-label', v + ', ' + w);
+    b.addEventListener('click', () => speak(v + '... ' + w, b));
+    vg.appendChild(b);
+  });
+  const cg = $('#consGroups');
+  VARGA.forEach(g => {
+    const lab = document.createElement('div');
+    lab.className = 'group-label';
+    lab.innerHTML = `<b class="deva">${g.hi}</b><span>${g.en}</span>`;
+    cg.appendChild(lab);
+    const grid = document.createElement('div'); grid.className = 'grid-tiles';
+    g.list.forEach(c => {
+      const [w, wr, en] = (LETTER_WORD[c] || '||').split('|');
+      const b = document.createElement('button'); b.className = 'tile';
+      b.innerHTML = tileHTML(c, w, ROOT[c] + 'a · ' + en);
+      b.setAttribute('aria-label', c + ', ' + w);
+      b.addEventListener('click', () => speak(c + '... ' + w, b));
+      grid.appendChild(b);
+    });
+    cg.appendChild(grid);
+  });
+})();
+
+/* ---------- matras ---------- */
+(function renderWhere(){
+  const groups = [
+    ['after', 'बाद में', 'After', ['aa','ee','ah']],
+    ['before','पहले', 'Before', ['i']],
+    ['above', 'ऊपर', 'On top', ['e','ai','an','cb']],
+    ['below', 'नीचे', 'Below', ['u','oo','ri']]
+  ];
+  $('#whereGrid').innerHTML = groups.map(([p, hi, en, ks]) =>
+    `<div><b><span class="deva">${hi}</span> · ${en}</b><div class="ex">${ks.map(k => `<span class="mx" style="${mStyle(M[k])}">${syl('क', k)}</span>`).join('')}</div></div>`
+  ).join('') ;
+  const extra = document.createElement('p');
+  extra.className = 'sub'; extra.style.marginTop = '10px';
+  extra.innerHTML = 'ो, ौ and ॉ are a standing line after the letter <i>plus</i> a mark on top: <span class="deva" style="font-size:20px">को कौ कॉ</span>.';
+  $('#whereGrid').after(extra);
+})();
+function accuracy(k){ const s = stats[k]; return s && s.a ? s.c / s.a : 0; }
+function renderMatraGrid(){
+  const g = $('#matraGrid'); g.innerHTML = '';
+  MATRAS.forEach(m => {
+    const b = document.createElement('button');
+    b.className = 'mcard mxbg'; b.style.cssText = mStyle(m);
+    b.innerHTML = `<span class="sg mx">${m.sign ? signOnCircle(m) : 'अ'}</span><span class="vw mx">${m.sign ? m.vowel : ''}</span><span class="ex mx">${syl('क', m.k)}</span>
+      <span class="nm mx deva">${m.name}</span><span class="ps">${m.en}</span><span class="meter mx"><i style="width:${Math.round(accuracy(m.k) * 100)}%"></i></span>`;
+    b.setAttribute('aria-label', m.name + ', ' + m.en);
+    b.addEventListener('click', () => openMatra(m.k));
+    g.appendChild(b);
+  });
+}
+(function renderPairs(){
+  const pairs = [['i','ee'],['u','oo'],['e','ai'],['o','au'],['a','aa'],['an','cb']];
+  const box = $('#pairGrid');
+  pairs.forEach(([a, b]) => {
+    const d = document.createElement('div'); d.className = 'pair';
+    [a, b].forEach(k => {
+      const m = M[k], btn = document.createElement('button');
+      btn.className = 'mxbg'; btn.style.cssText = mStyle(m);
+      btn.innerHTML = `<span class="g mx">${syl('क', k)}</span><small class="mx">${romOf('क', k)}</small>`;
+      btn.addEventListener('click', () => speak(syl('क', k), btn));
+      d.appendChild(btn);
+    });
+    box.appendChild(d);
+  });
+})();
+function openMatra(k){
+  const m = M[k], p = M[m.pair];
+  $('#mdTitle').innerHTML = `<span>${m.name}</span>`;
+  const eq = m.sign
+    ? `<button data-say="क">क</button><span class="op">+</span><button data-say="${m.vowel}" aria-label="${m.vowel}">${signOnCircle(m)}</button><span class="op">=</span><button data-say="${syl('क', k)}">${syl('क', k)}</button>`
+    : `<button data-say="क">क</button><span class="op">=</span><span>क्</span><span class="op">+</span><button data-say="अ">अ</button>`;
+  const words = W[k].map((w, i) => `<button class="tile" data-w="${i}"><span class="g">${markWord(w.hi, m)}</span><span class="r">${w.rom}</span><span class="r">${w.en}</span></button>`).join('');
+  $('#mdBody').innerHTML = `
+    <div class="equation mxbg" style="${mStyle(m)}"><span class="mx" style="display:contents">${eq}</span></div>
+    <div class="facts">${m.sign ? `<div><b>Comes from:</b> the vowel <span class="deva" style="font-size:20px">${m.vowel}</span>, shrunk to <span class="deva" style="font-size:20px">${signOnCircle(m)}</span></div>` : ''}<div><b>Where it goes:</b> ${POS[m.pos]} <span class="deva">(${POS_HI[m.pos]})</span></div><div>${m.tip}</div>
+    ${k === 'u' || k === 'oo' ? '<div><b>Watch out:</b> with र it sits beside the letter, not below: <span class="deva" style="font-size:20px">रु, रू</span>.</div>' : ''}</div>
+    <h3 class="shiro" style="font-size:20px">जोड़ी में सुनो</h3>
+    <div class="pair" style="margin-bottom:6px">${[m, p].map(x => `<button class="mxbg" style="${mStyle(x)}" data-say="${syl('क', x.k)}"><span class="g mx">${syl('क', x.k)}</span><small class="mx">${x.sign ? signOnCircle(x) : 'अ'} · ${romOf('क', x.k)}</small></button>`).join('')}</div>
+    <h3 class="shiro" style="font-size:20px">शब्द</h3>
+    <p class="sub" style="margin-bottom:8px">The syllable with this matra is coloured. Tap a word to hear it.</p>
+    <div class="word-grid">${words}</div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn" id="mdSpeakName">🔊 Say the name</button>
+      <button class="btn primary" id="mdQuiz">इसका खेल खेलो</button>
+    </div>`;
+  $$('#mdBody [data-say]').forEach(b => b.addEventListener('click', () => speak(b.dataset.say, b)));
+  $$('#mdBody [data-w]').forEach(b => b.addEventListener('click', () => speak(W[k][+b.dataset.w].hi, b)));
+  $('#mdSpeakName').addEventListener('click', e => speak(m.say, e.currentTarget));
+  $('#mdQuiz').addEventListener('click', () => {
+    quiz.filter = new Set([k, m.pair]); saveQuizPrefs(); renderFilter();
+    $('#matraDlg').close(); showTab('quiz');
+  });
+  $('#matraDlg').showModal();
+  $('#mdBody').scrollTop = 0;
+}
+$('#mdClose').addEventListener('click', () => $('#matraDlg').close());
+$$('dialog').forEach(d => d.addEventListener('click', e => { if(e.target === d) d.close(); }));
+
+/* ---------- barakhadi ---------- */
+let bkCons = store.get('bkCons', 'क');
+if(!ALL_CONS.includes(bkCons)) bkCons = 'क';
+let playing = false;
+(function renderChips(){
+  const box = $('#consChips');
+  ALL_CONS.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = c; b.dataset.c = c;
+    b.addEventListener('click', () => { bkCons = c; store.set('bkCons', c); renderBarakhadi(); });
+    box.appendChild(b);
+  });
+})();
+function renderBarakhadi(){
+  stopAll();
+  $$('#consChips .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.c === bkCons ? 'true' : 'false'));
+  const chip = $(`#consChips .chip[data-c="${bkCons}"]`);
+  if(chip) chip.scrollIntoView({block:'nearest', inline:'center', behavior:'smooth'});
+  $('#bkLetter').textContent = bkCons;
+  const [w, wr, en] = (LETTER_WORD[bkCons] || '||').split('|');
+  $('#bkWord').textContent = w ? `${bkCons} से ${w}` : '';
+  $('#bkRoman').textContent = w ? `${wr} · ${en}` : '';
+  const g = $('#bkGrid'); g.innerHTML = '';
+  FORM_ORDER.forEach(k => {
+    if(!validForm(bkCons, k)) return;
+    const m = M[k], s = syl(bkCons, k);
+    const ex = (BY_FIRST[s] || [])[0];
+    const b = document.createElement('button');
+    b.className = 'tile mxbg'; b.style.cssText = mStyle(m); b.dataset.say = s;
+    b.innerHTML = tileHTML(`<span class="mx">${s}</span>`, ex ? `<span class="mx">${ex.hi}</span>` : '', romOf(bkCons, k) + (ex ? ' · ' + ex.en : ''));
+    b.setAttribute('aria-label', s + (ex ? ', ' + ex.hi : ''));
+    b.addEventListener('click', () => { stopAll(); speak(ex ? s + '... ' + ex.hi : s, b); });
+    g.appendChild(b);
+  });
+  const notes = {
+    'र':'र is special: with ु and ू it becomes रु and रू, sitting beside the letter instead of below. It never takes ृ.',
+    'ङ':'ङ almost never starts a word, so it is rarely written with matras. Learn its shape and sound.',
+    'ञ':'ञ almost never starts a word, so it is rarely written with matras. Learn its shape and sound.',
+    'ण':'ण never starts a Hindi word. You meet it in the middle or end, as in गणेश and बाण.',
+    'ड़':'ड़ and ढ़ never start a word. You meet them in the middle or end, as in पेड़ and पढ़ना.',
+    'ढ़':'ड़ and ढ़ never start a word. You meet them in the middle or end, as in पेड़ and पढ़ना.',
+    'ष':'ष sounds almost like श. It appears mostly in words from Sanskrit, like भाषा.'
+  };
+  $('#bkSpecial').textContent = notes[bkCons] || '';
+  const st = STORY[bkCons];
+  $('#storyBox').hidden = !st;
+  if(st){
+    $('#storyTitle').innerHTML = `<span>${bkCons} की कहानी</span>`;
+    $('#storyHi').innerHTML = st.hi; $('#storyEn').textContent = st.en;
+    $$('#storyHi mark').forEach(mk => mk.addEventListener('click', () => speak(mk.textContent, mk)));
+  }
+}
+function stopAll(){
+  if(!playing) return;
+  playing = false; speakTok++;
+  stopSpeech();
+  $$('#bkGrid .tile').forEach(t => t.classList.remove('current'));
+  $('#playAll').textContent = '▶ पूरी बारहखड़ी सुनो';
+}
+$('#playAll').addEventListener('click', () => {
+  if(playing){ stopAll(); return; }
+  playing = true;
+  $('#playAll').textContent = '■ रोको';
+  const tiles = $$('#bkGrid .tile').filter(t => CLASSIC.some(k => syl(bkCons, k) === t.dataset.say));
+  let i = 0;
+  const step = () => {
+    if(!playing) return;
+    $$('#bkGrid .tile').forEach(t => t.classList.remove('current'));
+    if(i >= tiles.length){ stopAll(); return; }
+    const t = tiles[i++];
+    t.classList.add('current');
+    speak(t.dataset.say, null, () => setTimeout(step, 200));
+  };
+  step();
+});
+$('#bkWrite').addEventListener('click', () => { writeState.set = 'bk'; renderWriteChips(); showTab('write'); });
+
+/* ---------- write ---------- */
+const pad = $('#pad'), pctx = pad.getContext('2d');
+let padW = 320, strokes = [], curStroke = null, showGuide = true;
+const writeState = {set: store.get('writeSet', 'bk'), glyph: null};
+function writeList(){
+  if(writeState.set === 'vowels') return VOWELS.map(v => v[0]);
+  if(writeState.set === 'cons') return ALL_CONS.slice();
+  return FORM_ORDER.filter(k => validForm(bkCons, k)).map(k => syl(bkCons, k));
+}
+function renderWriteChips(){
+  store.set('writeSet', writeState.set);
+  $$('#writeSet button').forEach(b => b.setAttribute('aria-checked', b.dataset.set === writeState.set ? 'true' : 'false'));
+  const list = writeList();
+  if(!list.includes(writeState.glyph)) writeState.glyph = list[0];
+  const box = $('#writeChips'); box.innerHTML = '';
+  list.forEach(gl => {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = gl;
+    b.setAttribute('aria-pressed', gl === writeState.glyph ? 'true' : 'false');
+    b.addEventListener('click', () => setGlyph(gl));
+    box.appendChild(b);
+  });
+  setGlyph(writeState.glyph, true);
+}
+function glyphRoman(gl){
+  const v = VOWELS.find(x => x[0] === gl); if(v) return M[v[1]].rom;
+  for(const c of ALL_CONS){ for(const k of FORM_ORDER){ if(syl(c, k) === gl) return romOf(c, k); } }
+  return '';
+}
+function setGlyph(gl, silent){
+  writeState.glyph = gl; strokes = [];
+  $$('#writeChips .chip').forEach(b => b.setAttribute('aria-pressed', b.textContent === gl ? 'true' : 'false'));
+  $('#writeGlyph').textContent = gl;
+  $('#writeRoman').textContent = glyphRoman(gl);
+  $('#stars').innerHTML = ''; $('#writeMsg').textContent = '';
+  redraw();
+  if(!silent) speak(gl, null);
+}
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function glyphLayout(c, w){
+  let size = w * 0.56;
+  c.font = `${size}px ${css('--deva')}`;
+  let mt = c.measureText(writeState.glyph);
+  const maxW = w * 0.82;
+  if(mt.width > maxW){ size *= maxW / mt.width; c.font = `${size}px ${css('--deva')}`; mt = c.measureText(writeState.glyph); }
+  const asc = mt.actualBoundingBoxAscent || size * 0.7, desc = mt.actualBoundingBoxDescent || size * 0.2;
+  return {x: w / 2, y: w / 2 + (asc - desc) / 2, size};
+}
+function drawGlyph(c, w, color, strokeW){
+  const L = glyphLayout(c, w);
+  c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+  c.fillStyle = color; c.fillText(writeState.glyph, L.x, L.y);
+  if(strokeW){ c.strokeStyle = color; c.lineWidth = strokeW; c.lineJoin = 'round'; c.strokeText(writeState.glyph, L.x, L.y); }
+}
+function drawStrokes(c, scale, width, color){
+  c.strokeStyle = color; c.lineWidth = width; c.lineCap = 'round'; c.lineJoin = 'round';
+  strokes.forEach(s => {
+    c.beginPath();
+    s.forEach((p, i) => i ? c.lineTo(p[0] * scale, p[1] * scale) : c.moveTo(p[0] * scale, p[1] * scale));
+    if(s.length === 1) c.lineTo(s[0][0] * scale + .1, s[0][1] * scale);
+    c.stroke();
+  });
+}
+function redraw(){
+  const w = padW;
+  pctx.clearRect(0, 0, w, w);
+  pctx.fillStyle = css('--card'); pctx.fillRect(0, 0, w, w);
+  pctx.strokeStyle = css('--rule'); pctx.lineWidth = 1;
+  for(let y = w * 0.125; y < w; y += w * 0.125){ pctx.beginPath(); pctx.moveTo(0, y); pctx.lineTo(w, y); pctx.stroke(); }
+  if(showGuide && writeState.glyph) drawGlyph(pctx, w, css('--ghost'));
+  drawStrokes(pctx, 1, Math.max(6, w * 0.035), css('--ink'));
+}
+function sizePad(){
+  const box = pad.parentElement;
+  const w = Math.max(220, Math.min(box.clientWidth - 20, 400));
+  const dpr = window.devicePixelRatio || 1;
+  const old = padW;
+  pad.style.width = w + 'px'; pad.style.height = w + 'px';
+  pad.width = Math.round(w * dpr); pad.height = Math.round(w * dpr);
+  pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if(old && old !== w) strokes = strokes.map(s => s.map(p => [p[0] * w / old, p[1] * w / old]));
+  padW = w; redraw();
+}
+function ptr(e){ const r = pad.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+pad.addEventListener('pointerdown', e => { e.preventDefault(); pad.setPointerCapture(e.pointerId); curStroke = [ptr(e)]; strokes.push(curStroke); redraw(); });
+pad.addEventListener('pointermove', e => { if(!curStroke) return; curStroke.push(ptr(e)); redraw(); });
+['pointerup','pointercancel','pointerleave'].forEach(t => pad.addEventListener(t, () => { curStroke = null; }));
+window.addEventListener('resize', () => { if(!$('#tab-write').hidden) sizePad(); });
+$('#clearBtn').addEventListener('click', () => { strokes = []; $('#stars').innerHTML = ''; $('#writeMsg').textContent = ''; redraw(); });
+$('#undoBtn').addEventListener('click', () => { strokes.pop(); redraw(); });
+$('#guideBtn').addEventListener('click', e => {
+  showGuide = !showGuide;
+  e.currentTarget.setAttribute('aria-pressed', showGuide ? 'true' : 'false');
+  e.currentTarget.textContent = 'Guide: ' + (showGuide ? 'on' : 'off');
+  redraw();
+});
+$('#hearBtn').addEventListener('click', e => speak(writeState.glyph, e.currentTarget));
+$('#nextWrite').addEventListener('click', () => { const l = writeList(); setGlyph(l[(l.indexOf(writeState.glyph) + 1) % l.length]); });
+$$('#writeSet button').forEach(b => b.addEventListener('click', () => { writeState.set = b.dataset.set; renderWriteChips(); }));
+$('#checkBtn').addEventListener('click', () => {
+  if(!strokes.length){ $('#writeMsg').textContent = 'Draw the letter first, then tap Check.'; return; }
+  const N = 140, sc = N / padW;
+  const mk = () => { const c = document.createElement('canvas'); c.width = c.height = N; return c.getContext('2d', {willReadFrequently:true}); };
+  const gA = mk(); drawGlyph(gA, N, '#000');
+  const gB = mk(); drawGlyph(gB, N, '#000', N * 0.07);
+  const sA = mk(); drawStrokes(sA, sc, N * 0.085, '#000');
+  const sB = mk(); drawStrokes(sB, sc, Math.max(2, N * 0.03), '#000');
+  const a = gA.getImageData(0,0,N,N).data, b = gB.getImageData(0,0,N,N).data, s1 = sA.getImageData(0,0,N,N).data, s2 = sB.getImageData(0,0,N,N).data;
+  let gl = 0, cov = 0, st = 0, inside = 0;
+  for(let i = 3; i < a.length; i += 4){
+    if(a[i] > 128){ gl++; if(s1[i] > 0) cov++; }
+    if(s2[i] > 128){ st++; if(b[i] > 0) inside++; }
+  }
+  const coverage = gl ? cov / gl : 0, precision = st ? inside / st : 0;
+  let n = 1;
+  if(coverage > 0.72 && precision > 0.8) n = 3;
+  else if(coverage > 0.5 && precision > 0.65) n = 2;
+  $('#stars').innerHTML = [0,1,2].map(i => `<span class="${i < n ? '' : 'off'}">★</span>`).join('');
+  const msgs = {
+    3:'बहुत बढ़िया! That matches the letter really well.',
+    2:'अच्छा! Nearly there. ' + (coverage < 0.72 ? 'Some parts of the letter are still empty.' : 'Try to stay inside the shape.'),
+    1: coverage < 0.5 ? 'Keep going: trace over the whole letter, including the headline.' : 'Your lines wander outside the letter. Go slower and try again.'
+  };
+  $('#writeMsg').textContent = msgs[n];
+  if(n === 3) speak('शाबाश', null);
+});
+
+/* ---------- quiz ---------- */
+const MODES = {
+  listen:'Listen to a syllable, then tap the one you heard. Great for telling twins like कि and की apart.',
+  read:'See a syllable, then choose how it sounds.',
+  word:'A word is missing one syllable. Pick the one with the right matra to finish it.'
+};
+const qp = store.get('quiz', {});
+const quiz = {
+  mode: qp.mode || 'listen',
+  filter: new Set((qp.filter && qp.filter.length ? qp.filter : MATRAS.map(m => m.k)).filter(k => M[k])),
+  rounds: 10, i: 0, score: 0, streak: 0, cur: null, answered: false
+};
+function saveQuizPrefs(){ store.set('quiz', {mode: quiz.mode, filter: [...quiz.filter]}); }
+function renderModes(){
+  $$('#modeSeg button').forEach(b => b.setAttribute('aria-checked', b.dataset.mode === quiz.mode ? 'true' : 'false'));
+  $('#modeDesc').textContent = MODES[quiz.mode];
+}
+$$('#modeSeg button').forEach(b => b.addEventListener('click', () => { quiz.mode = b.dataset.mode; saveQuizPrefs(); renderModes(); }));
+function renderFilter(){
+  const box = $('#quizFilter'); box.innerHTML = '';
+  MATRAS.forEach(m => {
+    const b = document.createElement('button');
+    b.className = 'fchip mxbg'; b.style.cssText = mStyle(m);
+    b.innerHTML = `<span class="mx">${syl('क', m.k)}</span>`;
+    b.setAttribute('aria-pressed', quiz.filter.has(m.k) ? 'true' : 'false');
+    b.setAttribute('aria-label', m.name);
+    b.addEventListener('click', () => {
+      if(quiz.filter.has(m.k)){ if(quiz.filter.size > 1) quiz.filter.delete(m.k); } else quiz.filter.add(m.k);
+      saveQuizPrefs(); renderFilter();
+    });
+    box.appendChild(b);
+  });
+}
+$('#fAll').addEventListener('click', () => { quiz.filter = new Set(MATRAS.map(m => m.k)); saveQuizPrefs(); renderFilter(); });
+$('#fTwins').addEventListener('click', () => { quiz.filter = new Set(['i','ee','u','oo','e','ai','o','au']); saveQuizPrefs(); renderFilter(); });
+
+function distractorKeys(target, cons, n){
+  const out = [], p = M[target].pair;
+  if(p !== target && validForm(cons, p)) out.push(p);
+  const pool = shuffle(FORM_ORDER.filter(k => k !== target && !out.includes(k) && validForm(cons, k)));
+  const pref = pool.filter(k => quiz.filter.has(k)), rest = pool.filter(k => !quiz.filter.has(k));
+  return out.concat(pref, rest).slice(0, n);
+}
+function wordCandidates(k){
+  const m = M[k];
+  return W[k].map(w => {
+    const cs = clusters(w.hi), idx = targetIndex(cs, m);
+    if(idx < 0) return null;
+    const cl = cs[idx], base = m.sign ? cl.replace(m.sign, '') : cl;
+    const chars = [...base];
+    const ok = isCons(chars[0].codePointAt(0)) && chars.slice(1).every(ch => ch === '\u093C') && base + m.sign === cl;
+    return ok ? {w, cs, idx, base} : null;
+  }).filter(Boolean);
+}
+function makeQuestion(){
+  const keys = [...quiz.filter];
+  if(quiz.mode === 'word'){
+    const usable = keys.filter(k => wordCandidates(k).length);
+    const k = pick(usable.length ? usable : ['i','ee','u','oo']);
+    const c = pick(wordCandidates(k));
+    const opts = shuffle([k, ...distractorKeys(k, c.base, 3)]);
+    return {k, mode:'word', word:c.w, cs:c.cs, idx:c.idx, base:c.base, opts: opts.map(x => ({k:x, label: c.base + M[x].sign, deva:true}))};
+  }
+  const k = pick(keys);
+  let cons = pick(QUIZ_CONS); while(!validForm(cons, k)) cons = pick(QUIZ_CONS);
+  const opts = shuffle([k, ...distractorKeys(k, cons, 3)]);
+  return {k, mode: quiz.mode, cons, s: syl(cons, k),
+    opts: opts.map(x => quiz.mode === 'read' ? {k:x, label: romOf(cons, x)} : {k:x, label: syl(cons, x), deva:true})};
+}
+function startQuiz(){
+  quiz.i = 0; quiz.score = 0; quiz.streak = 0;
+  $('#quizSetup').hidden = true; $('#quizEnd').hidden = true; $('#quizLive').hidden = false;
+  nextQ();
+}
+function nextQ(){
+  if(quiz.i >= quiz.rounds){ endQuiz(); return; }
+  quiz.i++; quiz.answered = false;
+  const q = quiz.cur = makeQuestion(), m = M[q.k];
+  $('#qRound').textContent = `Round ${quiz.i} of ${quiz.rounds}`;
+  $('#qScore').textContent = `Score ${quiz.score}` + (quiz.streak >= 3 ? ` · 🔥 ${quiz.streak}` : '');
+  $('#qBar').style.width = ((quiz.i - 1) / quiz.rounds * 100) + '%';
+  $('#qFeedback').textContent = ''; $('#qFeedback').className = 'q-feedback';
+  $('#qNext').hidden = true;
+  const P = $('#qPrompt');
+  if(q.mode === 'listen'){
+    P.innerHTML = `<button class="q-listen" id="qSay" aria-label="Play the sound again">🔊</button><p class="q-hint">Tap to hear it again</p>`;
+    $('#qSay').addEventListener('click', e => speak(q.s, e.currentTarget));
+    speak(q.s, null);
+  }else if(q.mode === 'read'){
+    P.innerHTML = `<button class="q-big mx" style="${mStyle(m)}" id="qSay">${q.s}</button><p class="q-hint">How does this sound?</p>`;
+    $('#qSay').addEventListener('click', () => {});
+  }else{
+    const shown = q.cs.map((c, i) => i === q.idx ? '<span class="blank">?</span>' : c).join('');
+    P.innerHTML = `<div class="q-word">${shown}</div><p class="q-hint"><span class="rom-only">${q.word.rom} · </span>${q.word.en} &nbsp;<button class="btn ghost" id="qSay" style="padding:2px 12px">🔊 सुनो</button></p>`;
+    $('#qSay').addEventListener('click', e => speak(q.word.hi, e.currentTarget));
+  }
+  const O = $('#qOpts'); O.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt' + (o.deva ? ' deva' : ''); b.textContent = o.label; b.dataset.k = o.k;
+    b.setAttribute('aria-label', `Option ${i + 1}: ${o.label}`);
+    b.addEventListener('click', () => answer(o, b));
+    O.appendChild(b);
+  });
+}
+function answer(o, btn){
+  if(quiz.answered) return;
+  quiz.answered = true;
+  const q = quiz.cur, ok = o.k === q.k;
+  $$('#qOpts .opt').forEach(b => { b.disabled = true; if(b.dataset.k === q.k) b.classList.add('correct'); });
+  const s = stats[q.k] = stats[q.k] || {c:0, a:0};
+  s.a++; if(ok) s.c++;
+  store.set('stats', stats);
+  const fb = $('#qFeedback');
+  const right = q.mode === 'word' ? q.word.hi : q.s;
+  if(ok){
+    quiz.score++; quiz.streak++;
+    fb.textContent = pick(['सही जवाब!','शाबाश!','बहुत अच्छे!','बिल्कुल सही!']) + ' ' + right;
+    fb.className = 'q-feedback good';
+    if(q.mode === 'read' || q.mode === 'word') speak(right, null);
+  }else{
+    quiz.streak = 0; btn.classList.add('wrong');
+    const m = M[q.k];
+    fb.textContent = `Not quite. It's ${right} — ${m.sign ? 'with ' + signOnCircle(m) : 'with no matra'} (${m.name}).`;
+    fb.className = 'q-feedback bad';
+    speak(right, null);
+  }
+  if(q.mode === 'read'){ $('#qSay').addEventListener('click', e => speak(q.s, e.currentTarget)); }
+  $('#qScore').textContent = `Score ${quiz.score}` + (quiz.streak >= 3 ? ` · 🔥 ${quiz.streak}` : '');
+  $('#qNext').hidden = false; $('#qNext').focus({preventScroll:true});
+  renderProgress();
+}
+function endQuiz(){
+  $('#qBar').style.width = '100%';
+  $('#quizLive').hidden = true; $('#quizEnd').hidden = false;
+  $('#endScore').textContent = `${quiz.score} / ${quiz.rounds}`;
+  const r = quiz.score / quiz.rounds;
+  $('#endMsg').textContent = r >= 0.9 ? 'शाबाश! Excellent recognition.' : r >= 0.6 ? 'Good work. Play again, or practise the matras marked weak below.' : 'A normal start. Look at the matra cards again, then have another go.';
+  speak(r >= 0.6 ? 'शाबाश' : 'फिर से कोशिश करो', null);
+  renderProgress();
+}
+$('#startQuiz').addEventListener('click', startQuiz);
+$('#qNext').addEventListener('click', nextQ);
+$('#qAgain').addEventListener('click', startQuiz);
+$('#qQuit').addEventListener('click', () => { $('#quizLive').hidden = true; $('#quizSetup').hidden = false; });
+$('#qSetup').addEventListener('click', () => { $('#quizEnd').hidden = true; $('#quizSetup').hidden = false; });
+document.addEventListener('keydown', e => {
+  if($('#tab-quiz').hidden || $('#quizLive').hidden || e.target.closest('dialog')) return;
+  const n = parseInt(e.key, 10);
+  if(n >= 1 && n <= 4 && !quiz.answered){ const b = $$('#qOpts .opt')[n - 1]; if(b) b.click(); }
+});
+function weakKeys(){
+  return MATRAS.filter(m => stats[m.k] && stats[m.k].a >= 3).sort((x, y) => accuracy(x.k) - accuracy(y.k)).filter(m => accuracy(m.k) < 0.8).slice(0, 4).map(m => m.k);
+}
+function renderProgress(){
+  const list = $('#progList');
+  const seen = MATRAS.filter(m => stats[m.k] && stats[m.k].a);
+  if(!seen.length){ list.innerHTML = '<p class="empty">Nothing yet. Play a game and each matra will show up here with how often it was right.</p>'; }
+  else list.innerHTML = seen.map(m => {
+    const s = stats[m.k], pc = Math.round(s.c / s.a * 100);
+    return `<div class="prog-row" style="${mStyle(m)}"><span class="sg mx mxbg">${syl('क', m.k)}</span><span class="bar"><i class="mxbg" style="width:${pc}%;background:hsl(${m.h} 60% 50%)"></i></span><span class="pct">${pc}% · ${s.a}</span></div>`;
+  }).join('');
+  const weak = weakKeys();
+  const b = $('#practiseWeak');
+  b.disabled = !weak.length;
+  b.textContent = weak.length ? 'कमज़ोर मात्राओं का अभ्यास: ' + weak.map(k => syl('क', k)).join(' ') : 'कमज़ोर मात्राओं का अभ्यास';
+}
+$('#practiseWeak').addEventListener('click', () => {
+  const weak = weakKeys(); if(!weak.length) return;
+  const set = new Set(weak); weak.forEach(k => set.add(M[k].pair));
+  quiz.filter = set; saveQuizPrefs(); renderFilter();
+  quiz.mode = 'listen'; renderModes(); saveQuizPrefs();
+  startQuiz(); window.scrollTo(0, 0);
+});
+
+/* ---------- settings ---------- */
+function applySettings(){
+  document.body.classList.toggle('no-roman', !settings.roman);
+  const rb = $('#romanBtn'); rb.textContent = settings.roman ? 'On' : 'Off'; rb.setAttribute('aria-pressed', settings.roman ? 'true' : 'false');
+  $$('#rateSeg button').forEach(b => b.setAttribute('aria-checked', +b.dataset.rate === settings.rate ? 'true' : 'false'));
+  $$('#themeSeg button').forEach(b => b.setAttribute('aria-checked', b.dataset.theme === settings.theme ? 'true' : 'false'));
+  if(settings.theme === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', settings.theme);
+  store.set('settings', settings);
+  if(!$('#tab-write').hidden) redraw();
+}
+$('#settingsBtn').addEventListener('click', () => { updateVoiceUI(); $('#setDlg').showModal(); });
+$('#setClose').addEventListener('click', () => $('#setDlg').close());
+$('#testVoice').addEventListener('click', e => speak('नमस्ते! क का कि की', e.currentTarget));
+$('#romanBtn').addEventListener('click', () => { settings.roman = !settings.roman; applySettings(); });
+$$('#rateSeg button').forEach(b => b.addEventListener('click', () => { settings.rate = +b.dataset.rate; applySettings(); }));
+$$('#themeSeg button').forEach(b => b.addEventListener('click', () => { settings.theme = b.dataset.theme; applySettings(); }));
+$('#resetProg').addEventListener('click', () => { stats = {}; store.set('stats', stats); renderProgress(); renderMatraGrid(); $('#resetProg').textContent = 'Cleared'; });
+$('#warnVoiceSettings').addEventListener('click', openVoiceSettings);
+$('#setVoiceSettings').addEventListener('click', openVoiceSettings);
+/* Android back button: close a dialog, then return to the first tab, then leave the app */
+window.__onBack = () => {
+  const d = $$('dialog').find(x => x.open);
+  if(d){ d.close(); return true; }
+  if(store.get('tab', 'varnmala') !== 'varnmala'){ showTab('varnmala'); return true; }
+  return false;
+};
+$('#voiceWarnClose').addEventListener('click', () => { store.set('voiceWarnClosed', true); $('#voiceWarn').hidden = true; });
+
+/* ---------- start ---------- */
+$$('.shiro').forEach(h => { if(!h.querySelector('span')) h.innerHTML = '<span>' + h.innerHTML + '</span>'; });
+applySettings();
+renderMatraGrid();
+renderBarakhadi();
+renderWriteChips();
+renderModes();
+renderFilter();
+renderProgress();
+if(document.fonts && document.fonts.load){ document.fonts.load('40px "Tiro Devanagari Hindi"', 'क').then(() => { if(!$('#tab-write').hidden) redraw(); }).catch(() => {}); }
+showTab(location.hash.slice(1) || store.get('tab', 'varnmala'));
+</script>
+</body>
+</html>
