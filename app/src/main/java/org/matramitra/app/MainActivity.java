@@ -2,15 +2,20 @@ package org.matramitra.app;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.view.View;
+import android.view.WindowInsets;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.webkit.WebViewAssetLoader;
 
@@ -34,8 +39,29 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Android 15+ draws apps edge to edge. Pad the page away from the status and
+        // navigation bars and fill those strips with the app's ink colour.
+        FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(0xFF1B2456);
         web = new WebView(this);
-        setContentView(web);
+        root.addView(web, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        setContentView(root);
+        if (Build.VERSION.SDK_INT >= 30) {
+            getWindow().setDecorFitsSystemWindows(false);
+            root.setOnApplyWindowInsetsListener((View v, WindowInsets insets) -> {
+                android.graphics.Insets bars = insets.getInsets(
+                        WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+                v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+                return WindowInsets.CONSUMED;
+            });
+        }
+
+        // Android 13+ back gesture (required once the app targets Android 16).
+        if (Build.VERSION.SDK_INT >= 33) {
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                    OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::handleBack);
+        }
 
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
@@ -146,13 +172,19 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }
     }
 
-    @Override
-    @SuppressWarnings("deprecation")
-    public void onBackPressed() {
-        // Let the page close a dialog or go back to the first tab before leaving the app.
+    /** Let the page close a dialog or return to the first tab before leaving the app. */
+    private void handleBack() {
+        if (web == null) { finish(); return; }
         web.evaluateJavascript("(window.__onBack && window.__onBack()) ? 'y' : 'n'", value -> {
             if (!"\"y\"".equals(value)) finish();
         });
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onBackPressed() {
+        // Used on Android 12 and older; newer versions use the callback registered in onCreate.
+        handleBack();
     }
 
     @Override

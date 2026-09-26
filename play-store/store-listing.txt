@@ -1,0 +1,31 @@
+APP NAME (max 30 characters)
+Matra Mitra: Hindi Matras
+
+SHORT DESCRIPTION (max 80 characters)
+Learn every Hindi matra with sounds, words, tracing and fun games for kids.
+
+FULL DESCRIPTION (max 4000 characters)
+मात्रा मित्र (Matra Mitra) helps children learn to read Hindi, one letter and one matra at a time.
+
+WHAT'S INSIDE
+• वर्णमाला – all vowels and consonants, grouped the way school textbooks teach them, including क्ष, त्र, ज्ञ, श्र, ड़ and ढ़. Tap any letter to hear it with an example word.
+• मात्राएँ – every matra: ा ि ी ु ू ृ े ै ो ौ ॉ ं ँ ः. See where each one sits on the letter, hear it, and find simple words that use it.
+• छोटी–बड़ी जोड़ियाँ – practise the twins children mix up most: कि/की, कु/कू, के/कै, को/कौ.
+• बारहखड़ी – pick any letter and see it with every matra, with example words. Play the whole row aloud.
+• Stories – a short story for every consonant, with tappable coloured words.
+• लिखो – trace letters with your finger and get up to three stars.
+• खेलो – three games: hear and pick, read it, and finish the word with the right matra.
+• Progress – see which matras are strong and which need practice, and play a round with just the weak ones.
+
+MADE FOR FAMILIES
+• Works fully offline.
+• No ads, no sign-in, no data collected.
+• Colour-coded matras: short sounds light, long sounds dark.
+• English sound hints (ka, kaa, kay…) that can be switched off once your child reads the letters on their own.
+
+Letters are read aloud by your phone's text-to-speech. If you hear nothing, install the Hindi voice: Settings → Text-to-speech → Speech Services by Google → Install voice data → Hindi (India). The app shows a shortcut when it's needed.
+
+CATEGORY: Education
+TAGS: Education, Language learning, Kids
+CONTACT EMAIL: (your email)
+PRIVACY POLICY URL: https://vibhu1712.github.io/MatraMitra-Android/privacy-policy.html

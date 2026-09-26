@@ -4,3 +4,8 @@ app/build/
 local.properties
 .idea/
 *.iml
+
+# Play Store signing - never commit your real keystore or its credentials
+keystore.properties
+*.jks
+*.keystore

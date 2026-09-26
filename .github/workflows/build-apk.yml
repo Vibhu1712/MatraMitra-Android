@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      HAS_KEY: ${{ secrets.KEYSTORE_BASE64 != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -14,7 +16,8 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
-      - name: Build debug APK
+
+      - name: Build debug APK (for sideloading and testing)
         run: |
           chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon
@@ -22,3 +25,25 @@ jobs:
         with:
           name: matra-mitra-apk
           path: app/build/outputs/apk/debug/*.apk
+
+      - name: Build signed release bundle and APK (Play + phone installs)
+        if: env.HAS_KEY == 'true'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          KEYSTORE_FILE="$RUNNER_TEMP/upload.jks" ./gradlew bundleRelease assembleRelease --no-daemon
+          rm -f "$RUNNER_TEMP/upload.jks"
+      - uses: actions/upload-artifact@v4
+        if: env.HAS_KEY == 'true'
+        with:
+          name: matra-mitra-play-bundle
+          path: app/build/outputs/bundle/release/*.aab
+      - uses: actions/upload-artifact@v4
+        if: env.HAS_KEY == 'true'
+        with:
+          name: matra-mitra-signed-apk
+          path: app/build/outputs/apk/release/*.apk

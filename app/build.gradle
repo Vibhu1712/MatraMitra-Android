@@ -3,29 +3,44 @@ plugins {
 }
 
 android {
-    namespace 'org.matramitra.app'
-    compileSdk 34
+    namespace = 'org.matramitra.app'
+    compileSdk = 36
 
     defaultConfig {
-        applicationId "org.matramitra.app"
-        minSdk 24
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        applicationId = "org.matramitra.app"
+        minSdk = 24
+        targetSdk = 36          // Google Play requires API 36 for new apps from 31 Aug 2026
+        versionCode = 3         // raise by 1 for every upload to Play
+        versionName = "1.2"
+    }
+
+    // Release signing uses your private upload key. The GitHub workflow supplies it
+    // from repository secrets; nothing secret is stored in this file.
+    signingConfigs {
+        if (System.getenv("KEYSTORE_FILE")) {
+            release {
+                storeFile = file(System.getenv("KEYSTORE_FILE"))
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
+            if (System.getenv("KEYSTORE_FILE")) {
+                signingConfig = signingConfigs.release
+            }
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
-    // keep fonts uncompressed in the APK so the WebView can stream them
     androidResources {
         noCompress 'ttf'
     }

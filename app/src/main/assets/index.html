@@ -169,9 +169,10 @@ dialog::backdrop{background:rgba(10,14,40,.55);}
 .stars{font-size:34px;letter-spacing:4px;min-height:48px;line-height:1.4;}
 .stars{color:var(--accent);}
 .stars .off{opacity:.25;color:var(--ink-2);}
-.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;padding:3px;background:var(--card);flex-wrap:wrap;}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;padding:3px;background:var(--card);flex-wrap:nowrap;}
+.seg button{white-space:nowrap;}
 .seg button{border:0;background:none;border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:700;font-size:15px;color:var(--ink-2);}
-#modeSeg{display:flex;border-radius:18px;}
+#modeSeg{display:flex;flex-wrap:wrap;border-radius:18px;}
 #modeSeg button{flex:1 1 auto;border-radius:14px;}
 .seg button[aria-checked="true"]{background:var(--ink);color:var(--paper);}
 
@@ -207,7 +208,9 @@ dialog::backdrop{background:rgba(10,14,40,.55);}
 .prog-row .pct{text-align:right;color:var(--ink-2);}
 .empty{color:var(--ink-2);font-size:15px;}
 
-.set-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);}
+.set-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 12px;padding:12px 0;border-top:1px solid var(--line);}
+.set-row>div:first-child{flex:1 1 170px;min-width:0;}
+.set-row>.seg,.set-row>.btn,.set-row>.row{flex:none;margin-left:auto;}
 .set-row:first-child{border-top:0;}
 .set-row p{margin:0;font-size:14px;color:var(--ink-2);}
 
@@ -511,15 +514,15 @@ const VOWELS = [
   ['अं','an','अंगूर','angoor','grapes'],['अँ','cb','अँधेरा','andhayraa','darkness'],['अः','ah','दुःख','duhkh','sorrow']
 ];
 const VARGA = [
-  {hi:'क वर्ग', en:'from the throat', list:['क','ख','ग','घ','ङ']},
-  {hi:'च वर्ग', en:'from the palate', list:['च','छ','ज','झ','ञ']},
-  {hi:'ट वर्ग', en:'tongue curled back', list:['ट','ठ','ड','ढ','ण']},
-  {hi:'त वर्ग', en:'tongue on the teeth', list:['त','थ','द','ध','न']},
-  {hi:'प वर्ग', en:'with the lips', list:['प','फ','ब','भ','म']},
-  {hi:'अंतःस्थ', en:'in-between sounds', list:['य','र','ल','व']},
-  {hi:'ऊष्म', en:'hissing and breathy', list:['श','ष','स','ह']},
-  {hi:'संयुक्त व्यंजन', en:'joined letters', list:['क्ष','त्र','ज्ञ','श्र']},
-  {hi:'द्विगुण व्यंजन', en:'flapped, with a dot below', list:['ड़','ढ़']}
+  {hi:'क वर्ग', h:22, en:'from the throat', list:['क','ख','ग','घ','ङ']},
+  {hi:'च वर्ग', h:48, en:'from the palate', list:['च','छ','ज','झ','ञ']},
+  {hi:'ट वर्ग', h:140, en:'tongue curled back', list:['ट','ठ','ड','ढ','ण']},
+  {hi:'त वर्ग', h:190, en:'tongue on the teeth', list:['त','थ','द','ध','न']},
+  {hi:'प वर्ग', h:222, en:'with the lips', list:['प','फ','ब','भ','म']},
+  {hi:'अंतःस्थ', h:262, en:'in-between sounds', list:['य','र','ल','व']},
+  {hi:'ऊष्म', h:300, en:'hissing and breathy', list:['श','ष','स','ह']},
+  {hi:'संयुक्त व्यंजन', h:340, en:'joined letters', list:['क्ष','त्र','ज्ञ','श्र']},
+  {hi:'द्विगुण व्यंजन', h:8, en:'flapped, with a dot below', list:['ड़','ढ़']}
 ];
 const ROOT = {'क':'k','ख':'kh','ग':'g','घ':'gh','ङ':'ng','च':'ch','छ':'chh','ज':'j','झ':'jh','ञ':'ny','ट':'T','ठ':'Th','ड':'D','ढ':'Dh','ण':'N',
   'त':'t','थ':'th','द':'d','ध':'dh','न':'n','प':'p','फ':'ph','ब':'b','भ':'bh','म':'m','य':'y','र':'r','ल':'l','व':'v','श':'sh','ष':'Sh','स':'s','ह':'h',
@@ -616,8 +619,15 @@ function flash(el, ok){
   el.classList.add(ok ? 'playing' : 'novoice');
   setTimeout(() => el.classList.remove('playing', 'novoice'), 900);
 }
+let lastTapEl = null, lastTapAt = 0;
+const TAP_COOLDOWN = 2000;
 function speak(text, el, onend){
   if(!text) return;
+  if(el){
+    const now = Date.now();
+    if(el === lastTapEl && now - lastTapAt < TAP_COOLDOWN) return;   // same tile tapped again too soon
+    lastTapEl = el; lastTapAt = now;
+  }
   if(!canSpeak){ flash(el, false); if(onend) setTimeout(onend, 500); return; }
   const tok = ++speakTok;
   let done = false;
@@ -676,13 +686,14 @@ function tileHTML(g, w, r, extra){ return `<span class="g">${g}</span><span clas
   VARGA.forEach(g => {
     const lab = document.createElement('div');
     lab.className = 'group-label';
-    lab.innerHTML = `<b class="deva">${g.hi}</b><span>${g.en}</span>`;
+    lab.innerHTML = `<b class="deva mx" style="--h:${g.h};--d:0">${g.hi}</b><span>${g.en}</span>`;
     cg.appendChild(lab);
     const grid = document.createElement('div'); grid.className = 'grid-tiles';
     g.list.forEach(c => {
       const [w, wr, en] = (LETTER_WORD[c] || '||').split('|');
-      const b = document.createElement('button'); b.className = 'tile';
-      b.innerHTML = tileHTML(c, w, ROOT[c] + 'a · ' + en);
+      const b = document.createElement('button'); b.className = 'tile mxbg';
+      b.style.cssText = `--h:${g.h};--d:0;`;
+      b.innerHTML = tileHTML(`<span class="mx">${c}</span>`, w, ROOT[c] + 'a · ' + en);
       b.setAttribute('aria-label', c + ', ' + w);
       b.addEventListener('click', () => speak(c + '... ' + w, b));
       grid.appendChild(b);

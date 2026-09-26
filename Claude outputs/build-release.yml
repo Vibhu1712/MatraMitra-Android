@@ -1,0 +1,50 @@
+name: Build Release AAB
+
+# Builds a signed Android App Bundle (.aab) ready to upload to the Google
+# Play Console. Run it by hand from the Actions tab ("Run workflow").
+#
+# Before the first run, add these four repository secrets under
+# Settings > Secrets and variables > Actions:
+#   ANDROID_KEYSTORE_BASE64   - `base64 -w0 your-release-key.jks` output
+#   ANDROID_KEYSTORE_PASSWORD - the keystore's password
+#   ANDROID_KEY_ALIAS         - the key alias inside the keystore
+#   ANDROID_KEY_PASSWORD      - that key's password
+#
+# See README.md "Publishing to the Play Store" for how to create the
+# keystore in the first place.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Decode signing keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+
+      - name: Build signed release AAB
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/release.keystore
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          chmod +x ./gradlew
+          ./gradlew bundleRelease --no-daemon
+
+      - name: Remove keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.keystore"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: matra-mitra-release-aab
+          path: app/build/outputs/bundle/release/*.aab
