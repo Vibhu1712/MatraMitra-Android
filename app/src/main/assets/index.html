@@ -621,8 +621,34 @@ function flash(el, ok){
 }
 let lastTapEl = null, lastTapAt = 0;
 const TAP_COOLDOWN = 2000;
+/* Phone voices stretch a short ि/ु at the end of a lone syllable, so दु sounds like दू.
+   In a real word the length comes out right, so a bare twin syllable is followed by a
+   word that starts with it (दु... दुकान). Where no word exists, the short one is said
+   quicker and the long one slower, so the length difference can still be heard. */
+const SHORT_SIGNS = 'िु', LONG_SIGNS = 'ीू';   // ि ु | ी ू
+/* extra words for twin syllables the word lists don't cover (speech only) */
+const TWIN_WORDS = {
+  'घि':'घिसना','ठि':'ठिकाना','ढि':'ढिबरी','थि':'थिरकना','भि':'भिगोना','वि':'विमान',
+  'घी':'घीया','छी':'छीलना','ठी':'ठीक','ढी':'ढीला','नी':'नीला','वी':'वीणा',
+  'ठु':'ठुमका','दु':'दुकान','यु':'युवा','लु':'लुढ़कना','शु':'शुक्रवार',
+  'खू':'खूब','गू':'गूदा','नू':'नूडल्स','बू':'बूढ़ा','लू':'लूडो','शू':'शून्य'
+};
+function twinSpeech(text){
+  const cs = clusters(text);
+  if(cs.length !== 1) return null;
+  const sign = [...text].pop();
+  const short = SHORT_SIGNS.includes(sign), long = LONG_SIGNS.includes(sign);
+  if(!short && !long) return null;
+  const ex = (BY_FIRST[text] || []).find(w => clusters(w.hi).length > 1);
+  const word = ex ? ex.hi : TWIN_WORDS[text];
+  if(word) return {text: text + '... ' + word, mul: 1};
+  return {text, mul: short ? 1.3 : 0.75};
+}
 function speak(text, el, onend){
   if(!text) return;
+  const tw = twinSpeech(text);
+  const rate = Math.max(0.4, Math.min(settings.rate * (tw ? tw.mul : 1), 1.5));
+  if(tw) text = tw.text;
   if(el){
     const now = Date.now();
     if(el === lastTapEl && now - lastTapAt < TAP_COOLDOWN) return;   // same tile tapped again too soon
@@ -632,11 +658,11 @@ function speak(text, el, onend){
   const tok = ++speakTok;
   let done = false;
   const fin = () => { if(done) return; done = true; if(tok === speakTok && onend) onend(); };
-  const fallback = () => { if(onend) setTimeout(fin, 1400 + text.length * 260 / settings.rate); };
+  const fallback = () => { if(onend) setTimeout(fin, 1400 + text.length * 260 / rate); };
   if(nativeTTS){
     const id = 'u' + tok;
     pendingTTS[id] = {start: () => flash(el, true), end: fin, err: () => { flash(el, false); fin(); }};
-    try{ nativeTTS.speak(text, settings.rate, id); }catch(e){ delete pendingTTS[id]; flash(el, false); fin(); return; }
+    try{ nativeTTS.speak(text, rate, id); }catch(e){ delete pendingTTS[id]; flash(el, false); fin(); return; }
     fallback();
     return;
   }
@@ -644,7 +670,7 @@ function speak(text, el, onend){
   setTimeout(() => {
     if(tok !== speakTok) return;
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'hi-IN'; u.rate = settings.rate; if(hiVoice) u.voice = hiVoice;
+    u.lang = 'hi-IN'; u.rate = rate; if(hiVoice) u.voice = hiVoice;
     u.onstart = () => flash(el, true);
     u.onend = fin;
     u.onerror = e => { if(e.error !== 'interrupted' && e.error !== 'canceled') flash(el, false); fin(); };
@@ -1047,7 +1073,12 @@ function makeQuestion(){
     return {k, mode:'word', word:c.w, cs:c.cs, idx:c.idx, base:c.base, opts: opts.map(x => ({k:x, label: c.base + M[x].sign, deva:true}))};
   }
   const k = pick(keys);
-  let cons = pick(QUIZ_CONS); while(!validForm(cons, k)) cons = pick(QUIZ_CONS);
+  let pool = QUIZ_CONS.filter(c => validForm(c, k));
+  if(quiz.mode === 'listen'){   // for ि ी ु ू, prefer letters with an example word so the length is audible
+    const withWord = pool.filter(c => { const tw = twinSpeech(syl(c, k)); return tw && tw.mul === 1; });
+    if(withWord.length) pool = withWord;
+  }
+  const cons = pick(pool);
   const opts = shuffle([k, ...distractorKeys(k, cons, 3)]);
   return {k, mode: quiz.mode, cons, s: syl(cons, k),
     opts: opts.map(x => quiz.mode === 'read' ? {k:x, label: romOf(cons, x)} : {k:x, label: syl(cons, x), deva:true})};
